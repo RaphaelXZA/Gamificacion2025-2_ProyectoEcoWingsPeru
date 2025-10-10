@@ -11,6 +11,15 @@ public class DrawingPattern
     public float totalDistance;
     public int pointCount;
 
+    // Constructor vacío para deserialización
+    public DrawingPattern()
+    {
+        normalizedPoints = new List<Vector2>();
+        directions = new List<Vector2>();
+        totalDistance = 0f;
+        pointCount = 0;
+    }
+
     public DrawingPattern(List<Vector3> rawPoints)
     {
         normalizedPoints = new List<Vector2>();
@@ -80,7 +89,7 @@ public class SymbolData
 {
     public string symbolName;
     public List<DrawingPattern> patterns;
-    public int maxPatterns = 10; // Máximo de patrones por símbolo
+    public int maxPatterns = 15; // Máximo de patrones por símbolo
 
     public SymbolData(string name)
     {
@@ -401,25 +410,27 @@ public class SymbolPatternSystem : MonoBehaviour
 
     private void SaveSymbolDatabase()
     {
-        // Guardado simple usando PlayerPrefs (para prototipo)
-        foreach (var kvp in symbolDatabase)
+        if (PatternDataManager.Instance != null)
         {
-            string key = $"Symbol_{kvp.Key}_Count";
-            PlayerPrefs.SetInt(key, kvp.Value.patterns.Count);
-
-            // Guardar algunos datos básicos de patrones
-            for (int i = 0; i < kvp.Value.patterns.Count; i++)
-            {
-                string patternKey = $"Symbol_{kvp.Key}_Pattern_{i}_Distance";
-                PlayerPrefs.SetFloat(patternKey, kvp.Value.patterns[i].totalDistance);
-            }
+            PatternDataManager.Instance.SaveDatabase(symbolDatabase);
         }
-        PlayerPrefs.Save();
+        else
+        {
+            Debug.LogWarning("PatternDataManager no encontrado. Los datos no se guardarán.");
+        }
     }
 
     private void LoadSymbolDatabase()
     {
-        // Carga básica (expandir según necesidades)
-        Debug.Log("Base de datos de símbolos cargada");
+        if (PatternDataManager.Instance != null)
+        {
+            symbolDatabase = PatternDataManager.Instance.LoadDatabase();
+            Debug.Log($"Base de datos cargada: {symbolDatabase.Count} símbolos");
+        }
+        else
+        {
+            Debug.LogWarning("PatternDataManager no encontrado. No se cargaron datos.");
+            symbolDatabase = new Dictionary<string, SymbolData>();
+        }
     }
 }
