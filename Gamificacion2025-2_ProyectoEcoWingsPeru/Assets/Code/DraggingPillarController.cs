@@ -1,16 +1,17 @@
 using UnityEngine;
 
-public class PillarController : MonoBehaviour
+public class DraggingPillarController : MonoBehaviour
 {
     [Header("Configuración del Pilar")]
     [SerializeField] private float limiteSuperior = 5f;
     [SerializeField] private float limiteInferior = -5f;
     [SerializeField] private float sensibilidad = 1f;
-    [SerializeField] private float velocidadMovimiento = 3f;
+    [SerializeField] private int pointsGiven = 1;
 
     private Camera camaraPrincipal;
     private bool estaSiendoArrastrado = false;
     private float offsetY;
+    private bool hasGavePoints = false;
 
     void Start()
     {
@@ -25,9 +26,6 @@ public class PillarController : MonoBehaviour
 
     void Update()
     {
-        // Mover el pilar hacia la izquierda
-        MovePillar();
-
         // Manejar input táctil
         ManageInput();
 
@@ -35,20 +33,21 @@ public class PillarController : MonoBehaviour
         DestroyIfOffScreen();
     }
 
-    private void MovePillar()
-    {
-        // Solo mover si no está siendo arrastrado (opcional, puedes quitarlo si quieres que se mueva siempre)
-        // if (!estaSiendoArrastrado)
-        // {
-        transform.Translate(Vector3.left * velocidadMovimiento * Time.deltaTime);
-        // }
-    }
-
     private void DestroyIfOffScreen()
     {
-        // Destruir el pilar si se sale por el lado izquierdo de la pantalla
-        if (transform.position.x < -20f)
+        if (transform.position.x < -15f)
         {
+            // Dar puntos antes de destruir (si aún no se han dado)
+            if (!hasGavePoints)
+            {
+                ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
+                if (scoreManager != null)
+                {
+                    scoreManager.AñadirPuntos(pointsGiven);
+                }
+                hasGavePoints = true;
+            }
+
             Destroy(gameObject);
         }
     }
@@ -156,11 +155,5 @@ public class PillarController : MonoBehaviour
     public bool IsDragging()
     {
         return estaSiendoArrastrado;
-    }
-
-    // Método para configurar velocidad desde otros scripts
-    public void SetUpSpeed(float nuevaVelocidad)
-    {
-        velocidadMovimiento = nuevaVelocidad;
     }
 }
