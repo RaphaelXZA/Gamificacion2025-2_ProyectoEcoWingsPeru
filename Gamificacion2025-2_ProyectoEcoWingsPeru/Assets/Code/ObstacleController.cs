@@ -16,11 +16,11 @@ public class ObstacleController : MonoBehaviour
 
     void Update()
     {
-        // Mover el pilar hacia la izquierda
-        MovePillar();
-
-        // Destruir pilar si sale de la pantalla
-        DestroyIfOffScreen();
+        if(GameManager.Instance.CurrentState == GameManager.GameState.Playing)
+        {
+            MovePillar();
+            DestroyIfOffScreen();
+        }
     }
 
     private void MovePillar()

@@ -39,7 +39,10 @@ public class PillarSpawner : MonoBehaviour
 
     void Update()
     {
-        GenerarPilarSiEsNecesario();
+        if(GameManager.Instance.CurrentState == GameManager.GameState.Playing)
+        {
+            GenerarPilarSiEsNecesario();
+        }
     }
 
     private void GenerarPilarSiEsNecesario()
