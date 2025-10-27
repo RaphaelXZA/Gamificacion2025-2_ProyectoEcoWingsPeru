@@ -5,7 +5,14 @@ public class ScoreManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI textoPuntuacion;
 
+    private PillarSpawner pillarSpawner;
     private int puntuacion = 0;
+
+
+    private void Awake()
+    {
+        pillarSpawner = FindAnyObjectByType<PillarSpawner>();
+    }
 
     void Start()
     {
@@ -17,6 +24,12 @@ public class ScoreManager : MonoBehaviour
     public void AñadirPuntos(int cantidad)
     {
         puntuacion += cantidad;
+
+        if (puntuacion != 0 && puntuacion % 4 == 0)
+        {
+            pillarSpawner.IntervaloGeneracion = Mathf.Max(0.8f, pillarSpawner.IntervaloGeneracion - 0.2f);
+            pillarSpawner.VelocidadPilares += 0.4f;
+        }
         ActualizarUI();
         Debug.Log($"Puntos: {puntuacion}");
     }

@@ -25,6 +25,18 @@ public class PillarSpawner : MonoBehaviour
     [SerializeField] private float limiteSuperior = 5f;
     [SerializeField] private float limiteInferior = -5f;
 
+    public float IntervaloGeneracion
+    {
+        get { return intervaloGeneracion; }
+        set { intervaloGeneracion = value; }
+    }
+
+    public float VelocidadPilares
+    {
+        get { return velocidadPilares; }
+        set { velocidadPilares = value; }
+    }
+
     private float tiempoUltimaGeneracion = 0f;
 
     void Start()
