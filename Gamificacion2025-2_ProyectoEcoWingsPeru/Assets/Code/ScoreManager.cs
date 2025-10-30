@@ -45,6 +45,8 @@ public class ScoreManager : MonoBehaviour
     {
         puntuacion = 0;
         ActualizarUI();
+        pillarSpawner.IntervaloGeneracion = pillarSpawner.StartIntervaloGeneracion;
+        pillarSpawner.VelocidadPilares = pillarSpawner.StartVelocidadPilares;
         Debug.Log("Puntuación reseteada");
     }
 

@@ -25,6 +25,19 @@ public class PillarSpawner : MonoBehaviour
     [SerializeField] private float limiteSuperior = 5f;
     [SerializeField] private float limiteInferior = -5f;
 
+    private float startIntervaloGeneracion;
+    private float startVelocidadPilares;
+
+    public float StartIntervaloGeneracion
+    {
+        get { return startIntervaloGeneracion; }
+    }
+
+    public float StartVelocidadPilares
+    {
+        get { return startVelocidadPilares; }
+    }
+
     public float IntervaloGeneracion
     {
         get { return intervaloGeneracion; }
@@ -41,6 +54,9 @@ public class PillarSpawner : MonoBehaviour
 
     void Start()
     {
+        startIntervaloGeneracion = intervaloGeneracion;
+        startVelocidadPilares = velocidadPilares;
+
         // Verificar que tenemos prefabs
         if (pilaresPrefabs == null || pilaresPrefabs.Count == 0)
         {
