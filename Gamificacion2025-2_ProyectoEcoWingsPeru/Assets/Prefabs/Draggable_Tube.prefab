@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 8375833473203388011}
   - component: {fileID: 8235942878829852639}
   - component: {fileID: 45520008437178413}
+  - component: {fileID: 2214748177389739976}
   m_Layer: 0
   m_Name: Draggable_Tube
   m_TagString: Obstacle
@@ -177,7 +178,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.43, y: 6.46, z: 1}
+  m_Size: {x: 0.55, y: 6.46, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8375833473203388011
 MonoBehaviour:
@@ -191,7 +192,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa17ed09271a9bb4e9bb124b52e2fc56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleController
-  velocidadMovimiento: 3
+  velocidadMovimiento: 5
 --- !u!114 &8235942878829852639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235,6 +236,29 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!136 &2214748177389739976
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7697077731888315743}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.1
+  m_Height: 20
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8135569504055376336
 GameObject:
   m_ObjectHideFlags: 0

@@ -34,7 +34,7 @@ public class HUDManager : MonoBehaviour
         gameOverPanel.SetActive(true);
         Time.timeScale = 0f;
         GameManager.Instance.ChangeState(GameManager.GameState.GameOver);
-        finalScoreText.text = $"Puntaje: {scoreManager.ObtenerPuntuacion()}";
+        finalScoreText.text = $"Puntaje: {scoreManager.GetScore()}";
     }
 
     public IEnumerator ExtraLifeRoutine()
@@ -60,7 +60,7 @@ public class HUDManager : MonoBehaviour
     {
         ClearObstacles();
         Time.timeScale = 1f;
-        scoreManager.ResetearPuntuacion();
+        scoreManager.ResetScore();
         gameOverPanel.SetActive(false);
         playerReference.gameObject.SetActive(true);
         GameManager.Instance.ChangeState(GameManager.GameState.Playing);

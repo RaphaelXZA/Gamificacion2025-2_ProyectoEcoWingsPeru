@@ -1,228 +1,352 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
 [System.Serializable]
-public class PilarConProbabilidad
+public class ObstacleWithProbability
 {
     public GameObject prefab;
     [Range(0f, 100f)]
-    public float probabilidad = 100f;
+    public float probability = 100f;
     [Tooltip("Si está marcado, este prefab SOLO aparecerá en la posición central")]
-    public bool soloPosicionCentral = false;
+    public bool onlyCenterPosition = false;
 }
 
 public class PillarSpawner : MonoBehaviour
 {
     [Header("Configuración de Generación")]
-    [SerializeField] private List<PilarConProbabilidad> pilaresPrefabs = new List<PilarConProbabilidad>();
-    [SerializeField] private float intervaloGeneracion = 2f;
-    [SerializeField] private Transform puntoGeneracionAlta; // Posición alta
-    [SerializeField] private Transform puntoGeneracionCentral; // Posición central
-    [SerializeField] private Transform puntoGeneracionBaja; // Posición baja
+    [SerializeField] private List<ObstacleWithProbability> obstaclePrefabs = new List<ObstacleWithProbability>();
+    [SerializeField] private float spawnInterval = 2f;
+    [SerializeField] private Transform spawnPointHigh;
+    [SerializeField] private Transform spawnPointCenter;
+    [SerializeField] private Transform spawnPointLow;
 
-    [Header("Configuración de Pilares")]
-    [SerializeField] private float velocidadPilares = 3f;
-    [SerializeField] private float limiteSuperior = 5f;
-    [SerializeField] private float limiteInferior = -5f;
+    [Header("Tutorial")]
+    [SerializeField] private bool startWithTutorial = false;
+    [SerializeField] private float intervalForTutorial = 4f;
+    [SerializeField] private TextMeshProUGUI tutorialMessage;
 
-    private float startIntervaloGeneracion;
-    private float startVelocidadPilares;
+    [Header("Configuración de Obstaculos")]
+    [SerializeField] private float obstacleSpeed = 3f;
 
-    public float StartIntervaloGeneracion
+    private float startSpawnInterval;
+    private float startObstacleSpeed;
+
+    // Variables para el tutorial
+    private bool isInTutorial = false;
+    private int tutorialIndex = 0;
+    private int tutorialInitialScore = 0;
+
+    // Secuencia del tutorial: índice de prefab y posición (0=alta, 1=central, 2=baja)
+    private readonly (int prefabIndex, int position)[] tutorialSequence = new[]
     {
-        get { return startIntervaloGeneracion; }
+        (0, 0), // Prefab 0, posición alta
+        (0, 2), // Prefab 0, posición baja
+        (0, 0), // Prefab 0, posición alta
+        (0, 2), // Prefab 0, posición baja
+        (1, 1), // Prefab 1, posición central
+        (2, 1)  // Prefab 2, posición central
+    };
+
+    public float StartSpawnInterval
+    {
+        get { return startSpawnInterval; }
     }
 
-    public float StartVelocidadPilares
+    public float StartObstacleSpeed
     {
-        get { return startVelocidadPilares; }
+        get { return startObstacleSpeed; }
     }
 
-    public float IntervaloGeneracion
+    public float SpawnInterval
     {
-        get { return intervaloGeneracion; }
-        set { intervaloGeneracion = value; }
+        get { return spawnInterval; }
+        set { spawnInterval = value; }
     }
 
-    public float VelocidadPilares
+    public float ObstacleSpeed
     {
-        get { return velocidadPilares; }
-        set { velocidadPilares = value; }
+        get { return obstacleSpeed; }
+        set { obstacleSpeed = value; }
     }
 
-    private float tiempoUltimaGeneracion = 0f;
+    private float lastSpawnTime;
 
     void Start()
     {
-        startIntervaloGeneracion = intervaloGeneracion;
-        startVelocidadPilares = velocidadPilares;
+        lastSpawnTime = Time.time;
+        startSpawnInterval = spawnInterval;
+        startObstacleSpeed = obstacleSpeed;
 
         // Verificar que tenemos prefabs
-        if (pilaresPrefabs == null || pilaresPrefabs.Count == 0)
+        if (obstaclePrefabs == null || obstaclePrefabs.Count == 0)
         {
-            Debug.LogError("¡No se han asignado prefabs de pilares!");
+            Debug.LogError("¡No se han asignado prefabs de obstaculos!");
             return;
+        }
+
+        // Inicializar tutorial si está activado
+        if (startWithTutorial)
+        {
+            StartTutorial();
+        }
+        else
+        {
+            // Asegurarse de que el mensaje esté oculto si no hay tutorial
+            if (tutorialMessage != null)
+            {
+                tutorialMessage.gameObject.SetActive(false);
+            }
         }
     }
 
     void Update()
     {
-        if(GameManager.Instance.CurrentState == GameManager.GameState.Playing)
+        if (GameManager.Instance.CurrentState == GameManager.GameState.Playing)
         {
-            GenerarPilarSiEsNecesario();
+            // Verificar si el tutorial debe terminar
+            if (isInTutorial)
+            {
+                CheckTutorialEnd();
+            }
+
+            SpanwObstaclesIfNeccesary();
         }
     }
 
-    private void GenerarPilarSiEsNecesario()
+    private void SpanwObstaclesIfNeccesary()
     {
+        float currentInterval = isInTutorial ? intervalForTutorial : spawnInterval;
+
         // Verificar si es tiempo de generar un nuevo pilar
-        if (Time.time - tiempoUltimaGeneracion >= intervaloGeneracion)
+        if (Time.time - lastSpawnTime >= currentInterval)
         {
-            GenerarPilar();
-            tiempoUltimaGeneracion = Time.time;
+            if (isInTutorial)
+            {
+                SpawnTutorialObstacles();
+            }
+            else
+            {
+                SpawnPilar();
+            }
+            lastSpawnTime = Time.time;
         }
     }
 
-    private void GenerarPilar()
+    private void SpawnPilar()
     {
         // Elegir posición aleatoriamente
-        int posicionAleatoria = Random.Range(0, 3);
-        Transform puntoElegido = null;
-        bool esPosicionCentral = false;
+        int randomPosition = Random.Range(0, 3);
+        Transform chosenPosition = null;
+        bool isCentralPosition = false;
 
-        switch (posicionAleatoria)
+        switch (randomPosition)
         {
             case 0:
-                puntoElegido = puntoGeneracionAlta; // Alta
+                chosenPosition = spawnPointHigh;
                 break;
             case 1:
-                puntoElegido = puntoGeneracionCentral; // Central
-                esPosicionCentral = true;
+                chosenPosition = spawnPointCenter;
+                isCentralPosition = true;
                 break;
             case 2:
-                puntoElegido = puntoGeneracionBaja; // Baja
+                chosenPosition = spawnPointLow;
                 break;
         }
 
-        if (puntoElegido != null)
+        if (chosenPosition != null)
         {
             // Elegir un prefab aleatorio basado en la posición y probabilidades
-            GameObject prefabElegido = ElegirPrefabAleatorio(esPosicionCentral);
+            GameObject chosenPrefab = ChooseRandomPrefab(isCentralPosition);
 
-            if (prefabElegido != null)
+            if (chosenPrefab != null)
             {
                 // Crear el pilar en la posición elegida
-                GameObject nuevoPilar = Instantiate(prefabElegido, puntoElegido.position, puntoElegido.rotation);
+                GameObject newObstacle = Instantiate(chosenPrefab, chosenPosition.position, chosenPosition.rotation);
 
                 // Configurar el pilar generado
-                ObstacleController controladorPilar = nuevoPilar.GetComponent<ObstacleController>();
-                if (controladorPilar != null)
+                ObstacleController obstacleController = newObstacle.GetComponent<ObstacleController>();
+                if (obstacleController != null)
                 {
-                    controladorPilar.SetUpSpeed(velocidadPilares);
+                    obstacleController.SetUpSpeed(obstacleSpeed);
                 }
 
-                Debug.Log($"Pilar '{prefabElegido.name}' generado en posición: {puntoElegido.position}");
+                Debug.Log($"Pilar '{chosenPrefab.name}' generado en posición: {chosenPosition.position}");
             }
         }
     }
 
-    private GameObject ElegirPrefabAleatorio(bool esPosicionCentral)
+    private GameObject ChooseRandomPrefab(bool isCentralPosition)
     {
         // Filtrar prefabs válidos según la posición
-        List<PilarConProbabilidad> prefabsValidos = new List<PilarConProbabilidad>();
+        List<ObstacleWithProbability> validPrefabs = new List<ObstacleWithProbability>();
 
-        foreach (var pilar in pilaresPrefabs)
+        foreach (var obstacle in obstaclePrefabs)
         {
-            if (pilar.prefab != null)
+            if (obstacle.prefab != null)
             {
                 // Si es posición central, incluir TODOS los prefabs
-                if (esPosicionCentral)
+                if (isCentralPosition)
                 {
-                    prefabsValidos.Add(pilar);
+                    validPrefabs.Add(obstacle);
                 }
                 // Si NO es posición central, solo incluir los que NO son exclusivos del centro
-                else if (!pilar.soloPosicionCentral)
+                else if (!obstacle.onlyCenterPosition)
                 {
-                    prefabsValidos.Add(pilar);
+                    validPrefabs.Add(obstacle);
                 }
             }
         }
 
         // Si no hay prefabs válidos, devolver null
-        if (prefabsValidos.Count == 0)
+        if (validPrefabs.Count == 0)
         {
             Debug.LogWarning("No hay prefabs válidos para esta posición");
             return null;
         }
 
         // Calcular la probabilidad total de los prefabs válidos
-        float probabilidadTotal = 0f;
-        foreach (var pilar in prefabsValidos)
+        float totalProbability = 0f;
+        foreach (var obstacle in validPrefabs)
         {
-            probabilidadTotal += pilar.probabilidad;
+            totalProbability += obstacle.probability;
         }
 
         // Si no hay probabilidades válidas, elegir al azar
-        if (probabilidadTotal <= 0f)
+        if (totalProbability <= 0f)
         {
-            return prefabsValidos[Random.Range(0, prefabsValidos.Count)].prefab;
+            return validPrefabs[Random.Range(0, validPrefabs.Count)].prefab;
         }
 
         // Generar número aleatorio
-        float valorAleatorio = Random.Range(0f, probabilidadTotal);
+        float randomValue = Random.Range(0f, totalProbability);
 
         // Seleccionar prefab basado en probabilidad
-        float acumulado = 0f;
-        foreach (var pilar in prefabsValidos)
+        float total = 0f;
+        foreach (var pilar in validPrefabs)
         {
-            acumulado += pilar.probabilidad;
-            if (valorAleatorio <= acumulado)
+            total += pilar.probability;
+            if (randomValue <= total)
             {
                 return pilar.prefab;
             }
         }
 
         // Por seguridad, devolver el primer prefab válido
-        return prefabsValidos[0].prefab;
+        return validPrefabs[0].prefab;
     }
 
-    // Método para cambiar el intervalo en tiempo real
-    public void CambiarIntervalo(float nuevoIntervalo)
+    // Métodos del Tutorial
+    private void StartTutorial()
     {
-        intervaloGeneracion = nuevoIntervalo;
-    }
+        isInTutorial = true;
+        tutorialIndex = 0;
 
-    // Método para pausar/reanudar la generación
-    public void PausarGeneracion(bool pausar)
-    {
-        enabled = !pausar;
-    }
-
-    // Método para generar un pilar manualmente (útil para pruebas)
-    public void GenerarPilarManual()
-    {
-        GenerarPilar();
-    }
-
-    // Método para configurar las posiciones de generación
-    public void ConfigurarPosiciones(Vector3 posicion1, Vector3 posicion2, Vector3 posicion3)
-    {
-        if (puntoGeneracionAlta != null)
-            puntoGeneracionAlta.position = posicion1;
-        if (puntoGeneracionCentral != null)
-            puntoGeneracionCentral.position = posicion2;
-        if (puntoGeneracionBaja != null)
-            puntoGeneracionBaja.position = posicion3;
-    }
-
-    // Método para agregar un prefab con probabilidad
-    public void AgregarPrefab(GameObject prefab, float probabilidad, bool soloCentral = false)
-    {
-        pilaresPrefabs.Add(new PilarConProbabilidad
+        // Obtener puntuación actual del ScoreManager
+        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
+        if (scoreManager != null)
         {
-            prefab = prefab,
-            probabilidad = probabilidad,
-            soloPosicionCentral = soloCentral
-        });
+            tutorialInitialScore = scoreManager.GetScore();
+        }
+
+        // Mostrar mensaje inicial del tutorial
+        if (tutorialMessage != null)
+        {
+            tutorialMessage.gameObject.SetActive(true);
+            tutorialMessage.text = "Desliza";
+        }
+
+        Debug.Log("Tutorial iniciado");
+    }
+
+    private void SpawnTutorialObstacles()
+    {
+        // Verificar que no hayamos completado la secuencia
+        if (tutorialIndex >= tutorialSequence.Length)
+        {
+            return;
+        }
+
+        // Obtener el prefab y posición de la secuencia
+        var step = tutorialSequence[tutorialIndex];
+        int prefabIndex = step.prefabIndex;
+        int position = step.position;
+
+        // Verificar que el índice del prefab es válido
+        if (prefabIndex >= obstaclePrefabs.Count || obstaclePrefabs[prefabIndex].prefab == null)
+        {
+            Debug.LogError($"Tutorial: Prefab en índice {prefabIndex} no existe");
+            return;
+        }
+
+        // Obtener el punto de generación según la posición
+        Transform chosenPoint = null;
+        switch (position)
+        {
+            case 0:
+                chosenPoint = spawnPointHigh;
+                break;
+            case 1:
+                chosenPoint = spawnPointCenter;
+                break;
+            case 2:
+                chosenPoint = spawnPointLow;
+                break;
+        }
+
+        if (chosenPoint != null)
+        {
+            // Crear el pilar
+            GameObject chosenPrefab = obstaclePrefabs[prefabIndex].prefab;
+            GameObject newObstacle = Instantiate(chosenPrefab, chosenPoint.position, chosenPoint.rotation);
+
+            // Configurar el pilar generado
+            ObstacleController controladorPilar = newObstacle.GetComponent<ObstacleController>();
+            if (controladorPilar != null)
+            {
+                controladorPilar.SetUpSpeed(obstacleSpeed);
+            }
+
+            Debug.Log($"Tutorial: Obstaculo {tutorialIndex + 1}/{tutorialSequence.Length} generado");
+        }
+
+        tutorialIndex++;
+    }
+
+    private void CheckTutorialEnd()
+    {
+        // Obtener puntuación actual
+        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
+        if (scoreManager != null)
+        {
+            int currentScore = scoreManager.GetScore();
+            int gainedScore = currentScore - tutorialInitialScore;
+
+            // Cambiar mensaje a "Dibuja" cuando haya ganado 4 puntos
+            if (gainedScore == 4 && tutorialMessage != null)
+            {
+                tutorialMessage.text = "Dibuja";
+            }
+
+            // Si ha ganado 6 puntos (los 6 obstáculos del tutorial), terminar tutorial
+            if (gainedScore >= 6)
+            {
+                EndTutorial();
+            }
+        }
+    }
+
+    private void EndTutorial()
+    {
+        isInTutorial = false;
+        startWithTutorial = false;
+
+        // Ocultar mensaje del tutorial
+        if (tutorialMessage != null)
+        {
+            tutorialMessage.gameObject.SetActive(false);
+        }
+
+        Debug.Log("Tutorial completado");
     }
 }

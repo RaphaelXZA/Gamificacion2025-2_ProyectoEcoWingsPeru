@@ -16,12 +16,6 @@ public class DraggingPillarController : MonoBehaviour
     void Start()
     {
         camaraPrincipal = Camera.main;
-
-        // Asegurar que tiene un Collider para detectar el toque
-        if (GetComponent<Collider>() == null)
-        {
-            gameObject.AddComponent<BoxCollider>();
-        }
     }
 
     void Update()
@@ -37,18 +31,21 @@ public class DraggingPillarController : MonoBehaviour
     {
         if (transform.position.x < -15f)
         {
-            // Dar puntos antes de destruir (si aún no se han dado)
-            if (!hasGavePoints)
-            {
-                ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
-                if (scoreManager != null)
-                {
-                    scoreManager.AñadirPuntos(pointsGiven);
-                }
-                hasGavePoints = true;
-            }
-
             Destroy(gameObject);
+        }
+    }
+
+    private void GivePoints()
+    {
+        // Dar puntos (si aún no se han dado)
+        if (!hasGavePoints)
+        {
+            ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
+            if (scoreManager != null)
+            {
+                scoreManager.AddScore(pointsGiven);
+            }
+            hasGavePoints = true;
         }
     }
 
@@ -142,6 +139,14 @@ public class DraggingPillarController : MonoBehaviour
     private void EndDragging()
     {
         estaSiendoArrastrado = false;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            GivePoints();
+        }
     }
 
     // Método para configurar límites desde otros scripts

@@ -3,58 +3,58 @@ using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI textoPuntuacion;
+    [SerializeField] private TextMeshProUGUI textoScore;
 
-    private PillarSpawner pillarSpawner;
-    private int puntuacion = 0;
+    private PillarSpawner obstacleSpawner;
+    private int score = 0;
 
 
     private void Awake()
     {
-        pillarSpawner = FindAnyObjectByType<PillarSpawner>();
+        obstacleSpawner = FindAnyObjectByType<PillarSpawner>();
     }
 
     void Start()
     {
-        puntuacion = 0;
-        ActualizarUI();
+        score = 0;
+        UpdateUI();
     }
 
     // Método público para añadir puntos
-    public void AñadirPuntos(int cantidad)
+    public void AddScore(int cantidad)
     {
-        puntuacion += cantidad;
+        score += cantidad;
 
-        if (puntuacion != 0 && puntuacion % 4 == 0)
+        if (score != 0 && score % 4 == 0)
         {
-            pillarSpawner.IntervaloGeneracion = Mathf.Max(0.8f, pillarSpawner.IntervaloGeneracion - 0.2f);
-            pillarSpawner.VelocidadPilares += 0.4f;
+            obstacleSpawner.SpawnInterval = Mathf.Max(0.8f, obstacleSpawner.SpawnInterval - 0.2f);
+            obstacleSpawner.ObstacleSpeed += 0.4f;
         }
-        ActualizarUI();
-        Debug.Log($"Puntos: {puntuacion}");
+        UpdateUI();
+        Debug.Log($"Puntos: {score}");
     }
 
     // Método para obtener la puntuación actual
-    public int ObtenerPuntuacion()
+    public int GetScore()
     {
-        return puntuacion;
+        return score;
     }
 
     // Método para resetear la puntuación
-    public void ResetearPuntuacion()
+    public void ResetScore()
     {
-        puntuacion = 0;
-        ActualizarUI();
-        pillarSpawner.IntervaloGeneracion = pillarSpawner.StartIntervaloGeneracion;
-        pillarSpawner.VelocidadPilares = pillarSpawner.StartVelocidadPilares;
+        score = 0;
+        UpdateUI();
+        obstacleSpawner.SpawnInterval = obstacleSpawner.StartSpawnInterval;
+        obstacleSpawner.ObstacleSpeed = obstacleSpawner.StartObstacleSpeed;
         Debug.Log("Puntuación reseteada");
     }
 
-    private void ActualizarUI()
+    private void UpdateUI()
     {
-        if (textoPuntuacion != null)
+        if (textoScore != null)
         {
-            textoPuntuacion.text = "Puntos: " + puntuacion.ToString();
+            textoScore.text = "Puntos: " + score.ToString();
         }
     }
 }

@@ -53,7 +53,7 @@ public class SymbolTarget : MonoBehaviour
 
     void OnSymbolDetected(string detectedSymbol, float accuracy)
     {
-        if (isDestroyed) return; // Ya fue destruido
+        if (isDestroyed) return; 
 
         if (detectedSymbol.Equals(targetSymbol, System.StringComparison.OrdinalIgnoreCase))
         {
@@ -90,7 +90,7 @@ public class SymbolTarget : MonoBehaviour
             ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
             if (scoreManager != null)
             {
-                scoreManager.AñadirPuntos(pointsGiven);
+                scoreManager.AddScore(pointsGiven);
             }
             hasGavePoints = true;
         }

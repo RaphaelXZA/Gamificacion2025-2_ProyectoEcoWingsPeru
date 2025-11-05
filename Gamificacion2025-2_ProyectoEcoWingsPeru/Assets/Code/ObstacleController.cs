@@ -3,7 +3,7 @@ using UnityEngine;
 public class ObstacleController : MonoBehaviour
 {
     [Header("Configuración del Pilar")]
-    [SerializeField] private float velocidadMovimiento = 3f;
+    [SerializeField] private float movementSpeed = 3f;
 
     void Start()
     {
@@ -25,7 +25,7 @@ public class ObstacleController : MonoBehaviour
 
     private void MovePillar()
     {
-        transform.Translate(Vector3.left * velocidadMovimiento * Time.deltaTime);
+        transform.Translate(Vector3.left * movementSpeed * Time.deltaTime);
     }
 
     private void DestroyIfOffScreen()
@@ -38,8 +38,8 @@ public class ObstacleController : MonoBehaviour
     }
 
     // Método para configurar velocidad desde otros scripts
-    public void SetUpSpeed(float nuevaVelocidad)
+    public void SetUpSpeed(float newSpeed)
     {
-        velocidadMovimiento = nuevaVelocidad;
+        movementSpeed = newSpeed;
     }
 }
