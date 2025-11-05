@@ -3,7 +3,7 @@ using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI textoScore;
+    [SerializeField] private TextMeshProUGUI textScore;
 
     private PillarSpawner obstacleSpawner;
     private int score = 0;
@@ -52,9 +52,9 @@ public class ScoreManager : MonoBehaviour
 
     private void UpdateUI()
     {
-        if (textoScore != null)
+        if (textScore != null)
         {
-            textoScore.text = "Puntos: " + score.ToString();
+            textScore.text = "Puntos: " + score.ToString();
         }
     }
 }
