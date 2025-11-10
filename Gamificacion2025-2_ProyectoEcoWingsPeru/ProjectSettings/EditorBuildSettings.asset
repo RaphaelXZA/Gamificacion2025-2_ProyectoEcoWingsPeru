@@ -6,9 +6,10 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/TrainingScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Scenes/GameplayScene.unity
+    guid: be097352baac77546b1cf794fc1ccfee
   m_configObjects:
+    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: ccf10332a726f4141b576cfcb723a52b, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 9fbf84f6b480fed4c986f813aa7d153e, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: f4ad0d7ceeacb8c48bba95789b362594, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

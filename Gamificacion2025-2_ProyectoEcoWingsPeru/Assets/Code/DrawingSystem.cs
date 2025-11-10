@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class DrawingSystem : MonoBehaviour
 {
@@ -7,14 +8,18 @@ public class DrawingSystem : MonoBehaviour
     [SerializeField] private Material lineMaterial;
     [SerializeField] private float lineWidth = 0.1f;
     [SerializeField] private Color lineColor = Color.white;
-    [SerializeField] private float minDistance = 0.05f; // Reducido para mayor sensibilidad
+    [SerializeField] private float minDistance = 0.05f;
 
     private Camera mainCamera;
     private LineRenderer currentLine;
     private List<Vector3> currentPoints;
-    private List<Vector3> lastCompletedPoints; // Para el sistema de patrones
+    private List<Vector3> lastCompletedPoints;
     private bool isDrawing = false;
     private bool hasNewPattern = false;
+
+    // Nuevo Input System
+    private Touchscreen touchscreen;
+    private Mouse mouse;
 
     void Start()
     {
@@ -24,6 +29,10 @@ public class DrawingSystem : MonoBehaviour
 
         currentPoints = new List<Vector3>();
         lastCompletedPoints = new List<Vector3>();
+
+        // Obtener referencias a dispositivos de entrada
+        touchscreen = Touchscreen.current;
+        mouse = Mouse.current;
     }
 
     void Update()
@@ -33,22 +42,20 @@ public class DrawingSystem : MonoBehaviour
 
     void HandleInput()
     {
-        // Detectar toque/click
         bool isTouching = false;
         Vector2 inputPosition = Vector2.zero;
 
-        // Para dispositivos táctiles
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-            isTouching = touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved;
-            inputPosition = touch.position;
-        }
-        // Para mouse (testing en editor)
-        else if (Input.GetMouseButton(0))
+        // Prioridad 1: Touch (dispositivos móviles)
+        if (touchscreen != null && touchscreen.primaryTouch.press.isPressed)
         {
             isTouching = true;
-            inputPosition = Input.mousePosition;
+            inputPosition = touchscreen.primaryTouch.position.ReadValue();
+        }
+        // Prioridad 2: Mouse (editor/PC)
+        else if (mouse != null && mouse.leftButton.isPressed)
+        {
+            isTouching = true;
+            inputPosition = mouse.position.ReadValue();
         }
 
         if (isTouching)
@@ -72,7 +79,6 @@ public class DrawingSystem : MonoBehaviour
 
     Vector3 ScreenToWorldPosition(Vector2 screenPosition)
     {
-        // Convertir posición de pantalla a posición mundial
         Vector3 worldPos = mainCamera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, 10f));
         return worldPos;
     }
@@ -82,11 +88,9 @@ public class DrawingSystem : MonoBehaviour
         isDrawing = true;
         hasNewPattern = false;
 
-        // Crear nuevo GameObject para la línea
         GameObject lineObject = new GameObject("DrawLine");
         currentLine = lineObject.AddComponent<LineRenderer>();
 
-        // Configurar LineRenderer
         currentLine.material = lineMaterial;
         currentLine.startColor = lineColor;
         currentLine.endColor = lineColor;
@@ -95,7 +99,6 @@ public class DrawingSystem : MonoBehaviour
         currentLine.useWorldSpace = true;
         currentLine.positionCount = 0;
 
-        // Limpiar puntos anteriores y agregar el primer punto
         currentPoints.Clear();
         currentPoints.Add(startPosition);
         UpdateLineRenderer();
@@ -105,7 +108,6 @@ public class DrawingSystem : MonoBehaviour
     {
         if (currentPoints.Count > 0)
         {
-            // Solo agregar punto si está lo suficientemente lejos del anterior
             Vector3 lastPoint = currentPoints[currentPoints.Count - 1];
             float distance = Vector3.Distance(lastPoint, newPosition);
 
@@ -133,15 +135,13 @@ public class DrawingSystem : MonoBehaviour
     {
         isDrawing = false;
 
-        // Guardar los puntos para el sistema de patrones
-        if (currentPoints.Count > 2) // Mínimo de puntos para considerar un patrón válido
+        if (currentPoints.Count > 2)
         {
             lastCompletedPoints = new List<Vector3>(currentPoints);
             hasNewPattern = true;
             Debug.Log($"Dibujo completado con {lastCompletedPoints.Count} puntos");
         }
 
-        // Destruir la línea actual
         if (currentLine != null)
         {
             DestroyImmediate(currentLine.gameObject);
@@ -151,20 +151,17 @@ public class DrawingSystem : MonoBehaviour
         currentPoints.Clear();
     }
 
-    // Método para que el sistema de patrones verifique si hay un nuevo patrón
     public bool HasNewPattern()
     {
         return hasNewPattern;
     }
 
-    // Método para obtener el último patrón completado
     public List<Vector3> GetLastCompletedPattern()
     {
-        hasNewPattern = false; // Marcar como procesado
+        hasNewPattern = false;
         return new List<Vector3>(lastCompletedPoints);
     }
 
-    // Métodos públicos simplificados
     public List<Vector3> GetCurrentPoints()
     {
         return new List<Vector3>(currentPoints);

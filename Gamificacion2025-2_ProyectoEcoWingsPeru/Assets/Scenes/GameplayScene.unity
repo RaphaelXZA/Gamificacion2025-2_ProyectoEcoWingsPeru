@@ -2686,7 +2686,7 @@ MonoBehaviour:
   spawnPointHigh: {fileID: 130501326}
   spawnPointCenter: {fileID: 658237568}
   spawnPointLow: {fileID: 419946956}
-  startWithTutorial: 1
+  startWithTutorial: 0
   intervalForTutorial: 5
   tutorialMessage: {fileID: 1799420485}
   obstacleSpeed: 5

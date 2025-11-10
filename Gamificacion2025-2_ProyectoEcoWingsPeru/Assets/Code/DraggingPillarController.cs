@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class DraggingPillarController : MonoBehaviour
 {
@@ -51,50 +52,84 @@ public class DraggingPillarController : MonoBehaviour
 
     private void ManageInput()
     {
-        // Para Android (toque táctil)
-        if (Input.touchCount > 0)
+        // Usar el nuevo Input System para touch
+        if (Touchscreen.current != null)
         {
-            Touch toque = Input.GetTouch(0);
-            ManageTouch(toque.position, toque.phase);
-        }
-        // Para PC/Editor (mouse) - útil para pruebas
-        else if (Application.isEditor)
-        {
-            Vector2 posicionMouse = Input.mousePosition;
+            var touch = Touchscreen.current.primaryTouch;
 
-            if (Input.GetMouseButtonDown(0))
+            if (touch.press.isPressed)
             {
-                ManageTouch(posicionMouse, TouchPhase.Began);
+                Vector2 touchPosition = touch.position.ReadValue();
+                UnityEngine.InputSystem.TouchPhase phase = GetTouchPhase();
+                ManageTouch(touchPosition, phase);
             }
-            else if (Input.GetMouseButton(0) && estaSiendoArrastrado)
+            else if (estaSiendoArrastrado)
             {
-                ManageTouch(posicionMouse, TouchPhase.Moved);
+                // Si se soltó el toque pero este pilar estaba siendo arrastrado, terminar arrastre
+                EndDragging();
             }
-            else if (Input.GetMouseButtonUp(0))
+        }
+        // Fallback para mouse en editor/PC
+        else if (Mouse.current != null)
+        {
+            Vector2 mousePosition = Mouse.current.position.ReadValue();
+
+            if (Mouse.current.leftButton.wasPressedThisFrame)
             {
-                ManageTouch(posicionMouse, TouchPhase.Ended);
+                ManageTouch(mousePosition, UnityEngine.InputSystem.TouchPhase.Began);
+            }
+            else if (Mouse.current.leftButton.isPressed && estaSiendoArrastrado)
+            {
+                ManageTouch(mousePosition, UnityEngine.InputSystem.TouchPhase.Moved);
+            }
+            else if (Mouse.current.leftButton.wasReleasedThisFrame && estaSiendoArrastrado)
+            {
+                ManageTouch(mousePosition, UnityEngine.InputSystem.TouchPhase.Ended);
             }
         }
     }
 
-    private void ManageTouch(Vector2 posicionPantalla, TouchPhase fase)
+    private UnityEngine.InputSystem.TouchPhase GetTouchPhase()
+    {
+        var touch = Touchscreen.current.primaryTouch;
+
+        if (touch.press.wasPressedThisFrame)
+            return UnityEngine.InputSystem.TouchPhase.Began;
+        else if (touch.press.wasReleasedThisFrame)
+            return UnityEngine.InputSystem.TouchPhase.Ended;
+        else if (touch.press.isPressed)
+            return UnityEngine.InputSystem.TouchPhase.Moved;
+        else
+            return UnityEngine.InputSystem.TouchPhase.Canceled;
+    }
+
+    private void ManageTouch(Vector2 posicionPantalla, UnityEngine.InputSystem.TouchPhase fase)
     {
         switch (fase)
         {
-            case TouchPhase.Began:
-                StartDragging(posicionPantalla);
+            case UnityEngine.InputSystem.TouchPhase.Began:
+                // Solo iniciar arrastre si no hay ningún pilar siendo arrastrado
+                if (!estaSiendoArrastrado)
+                {
+                    StartDragging(posicionPantalla);
+                }
                 break;
 
-            case TouchPhase.Moved:
+            case UnityEngine.InputSystem.TouchPhase.Moved:
+                // Solo continuar si ESTE pilar está siendo arrastrado
                 if (estaSiendoArrastrado)
                 {
                     ContinueDragging(posicionPantalla);
                 }
                 break;
 
-            case TouchPhase.Ended:
-            case TouchPhase.Canceled:
-                EndDragging();
+            case UnityEngine.InputSystem.TouchPhase.Ended:
+            case UnityEngine.InputSystem.TouchPhase.Canceled:
+                // Solo terminar si ESTE pilar estaba siendo arrastrado
+                if (estaSiendoArrastrado)
+                {
+                    EndDragging();
+                }
                 break;
         }
     }
@@ -105,8 +140,9 @@ public class DraggingPillarController : MonoBehaviour
         Ray rayo = camaraPrincipal.ScreenPointToRay(posicionPantalla);
         RaycastHit hit;
 
-        // Verificar si el rayo golpea este pilar
-        if (Physics.Raycast(rayo, out hit) && hit.transform == transform)
+        // Verificar si el rayo golpea este pilar (ignorando triggers)
+        if (Physics.Raycast(rayo, out hit, Mathf.Infinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)
+            && hit.transform == transform)
         {
             estaSiendoArrastrado = true;
 
