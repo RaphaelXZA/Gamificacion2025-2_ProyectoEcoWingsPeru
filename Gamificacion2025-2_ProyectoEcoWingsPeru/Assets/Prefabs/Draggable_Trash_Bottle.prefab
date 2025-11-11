@@ -12,7 +12,7 @@ GameObject:
   m_Layer: 0
   m_Name: Pivot_Tuberias
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: -5487077368411116049, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -26,13 +26,13 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.034, y: 0.05, z: 0}
-  m_LocalScale: {x: 1.525, y: 1.3510547, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 9031525513014049020}
+  - {fileID: 6094936168532769856}
   m_Father: {fileID: 4183985757954378103}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &3346512655160184006
+--- !u!1 &6346298558312121378
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,37 +40,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 9031525513014049020}
-  - component: {fileID: 8709563185416105075}
+  - component: {fileID: 6094936168532769856}
+  - component: {fileID: 7703980748655392071}
   m_Layer: 0
-  m_Name: TuberiaSimple
+  m_Name: sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &9031525513014049020
+--- !u!4 &6094936168532769856
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3346512655160184006}
+  m_GameObject: {fileID: 6346298558312121378}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.14999998, y: 0.14000003, z: -0.25}
-  m_LocalScale: {x: 0.25, y: 0.6666667, z: 0.25}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 9001031490377724768}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &8709563185416105075
+--- !u!212 &7703980748655392071
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3346512655160184006}
+  m_GameObject: {fileID: 6346298558312121378}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -111,7 +111,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 6
-  m_Sprite: {fileID: 21300000, guid: e81893de1a0fbb94cb9c7582f2e678c0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e2198dd768754ef43b95c6dde46dbb0e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -137,7 +137,7 @@ GameObject:
   - component: {fileID: 45520008437178413}
   - component: {fileID: 2214748177389739976}
   m_Layer: 0
-  m_Name: Draggable_Tube
+  m_Name: Draggable_Trash_Bottle
   m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -153,7 +153,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -4.86, y: 8.67, z: 1}
-  m_LocalScale: {x: 4, y: 1.5, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9001031490377724768}
@@ -178,7 +178,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.55, y: 8.612511, z: 3}
+  m_Size: {x: 1.72, y: 2.56, z: 2}
   m_Center: {x: 0, y: 0.012665272, z: 0}
 --- !u!114 &8375833473203388011
 MonoBehaviour:
@@ -255,7 +255,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.1
+  m_Radius: 0.46
   m_Height: 20
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
