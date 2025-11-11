@@ -4,13 +4,22 @@ using TMPro;
 public class ScoreManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI textScore;
+    [SerializeField] private SpriteRenderer backgroundScore;
+    [SerializeField] private int umbralChangeColor = 3;
+    [SerializeField] private int umbralSpeedIncrease = 3;
+    [SerializeField] private Color nightColor;
+    [SerializeField] private float colorTransitionSpeed = 2f;
 
+    private Color originalColor;
+    private Color targetColor;
+    private bool isNight = false;
     private PillarSpawner obstacleSpawner;
     private int score = 0;
 
-
-    private void Awake()
+    void Awake()
     {
+        originalColor = backgroundScore.color;
+        targetColor = originalColor;
         obstacleSpawner = FindAnyObjectByType<PillarSpawner>();
     }
 
@@ -20,41 +29,54 @@ public class ScoreManager : MonoBehaviour
         UpdateUI();
     }
 
-    // Método público para añadir puntos
+    void Update()
+    {
+        backgroundScore.color = Color.Lerp(
+            backgroundScore.color,
+            targetColor,
+            colorTransitionSpeed * Time.deltaTime
+        );
+    }
+
     public void AddScore(int cantidad)
     {
         score += cantidad;
 
-        if (score != 0 && score % 4 == 0)
+        if (score != 0 && score % umbralSpeedIncrease == 0 && obstacleSpawner != null)
         {
             obstacleSpawner.SpawnInterval = Mathf.Max(0.8f, obstacleSpawner.SpawnInterval - 0.2f);
             obstacleSpawner.ObstacleSpeed += 0.4f;
         }
+
+        if (score != 0 && score % umbralChangeColor == 0)
+        {
+            isNight = !isNight;
+            targetColor = isNight ? nightColor : originalColor;
+        }
+
         UpdateUI();
         Debug.Log($"Puntos: {score}");
     }
 
-    // Método para obtener la puntuación actual
-    public int GetScore()
-    {
-        return score;
-    }
+    public int GetScore() => score;
 
-    // Método para resetear la puntuación
     public void ResetScore()
     {
         score = 0;
+        isNight = false;
+        targetColor = originalColor; // volver a día
         UpdateUI();
-        obstacleSpawner.SpawnInterval = obstacleSpawner.StartSpawnInterval;
-        obstacleSpawner.ObstacleSpeed = obstacleSpawner.StartObstacleSpeed;
+
+        if (obstacleSpawner != null)
+        {
+            obstacleSpawner.SpawnInterval = obstacleSpawner.StartSpawnInterval;
+            obstacleSpawner.ObstacleSpeed = obstacleSpawner.StartObstacleSpeed;
+        }
         Debug.Log("Puntuación reseteada");
     }
 
     private void UpdateUI()
     {
-        if (textScore != null)
-        {
-            textScore.text = "Puntos: " + score.ToString();
-        }
+        if (textScore != null) textScore.text = "Puntos: " + score;
     }
 }
