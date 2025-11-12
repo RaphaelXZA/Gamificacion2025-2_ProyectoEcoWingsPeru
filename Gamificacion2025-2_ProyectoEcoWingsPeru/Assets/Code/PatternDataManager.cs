@@ -1,8 +1,7 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
-
 // Clases serializables para JSON
 [System.Serializable]
 public class SerializablePattern
@@ -30,7 +29,6 @@ public class SerializablePattern
         return pattern;
     }
 }
-
 [System.Serializable]
 public class SerializableSymbol
 {
@@ -64,7 +62,6 @@ public class SerializableSymbol
         return symbolData;
     }
 }
-
 [System.Serializable]
 public class SymbolDatabase
 {
@@ -75,7 +72,6 @@ public class SymbolDatabase
         symbols = new List<SerializableSymbol>();
     }
 }
-
 public class PatternDataManager : MonoBehaviour
 {
     private static PatternDataManager instance;
@@ -85,7 +81,7 @@ public class PatternDataManager : MonoBehaviour
         {
             if (instance == null)
             {
-                instance = FindFirstObjectByType<PatternDataManager>();
+                instance = FindAnyObjectByType<PatternDataManager>();
                 if (instance == null)
                 {
                     GameObject go = new GameObject("PatternDataManager");
@@ -97,8 +93,9 @@ public class PatternDataManager : MonoBehaviour
     }
 
     [Header("Development Settings")]
-    [SerializeField] private bool useProjectFolder = true; // Cambiar a false para testing local
-    [SerializeField] private string projectFolderPath = "Assets/Resources/SymbolData"; // Carpeta en el proyecto
+    [SerializeField] private bool useProjectFolder = true; // Cambiar a false para
+     [SerializeField] private string projectFolderPath = "Assets/Resources/SymbolData";
+    // Carpeta en el proyecto
 
     private string SaveFilePath
     {
@@ -108,16 +105,19 @@ public class PatternDataManager : MonoBehaviour
             {
                 // Guarda en la carpeta del proyecto (versionable en Git)
 #if UNITY_EDITOR
-                return Path.Combine(Application.dataPath, "Resources/SymbolData/symbol_patterns.json");
+                return Path.Combine(Application.dataPath,
+"Resources/SymbolData/symbol_patterns.json");
 #else
-                // En build, carga desde Resources
-                return Path.Combine(Application.streamingAssetsPath, "symbol_patterns.json");
+                // En build, carga desde Resources
+                return Path.Combine(Application.streamingAssetsPath,
+"symbol_patterns.json");
 #endif
             }
             else
             {
-                // Guarda en persistentDataPath (para testing individual)
-                return Path.Combine(Application.persistentDataPath, "symbol_patterns.json");
+                // Guarda en persistentDataPath (para testing individual)
+                return Path.Combine(Application.persistentDataPath,
+"symbol_patterns.json");
             }
         }
     }
@@ -148,56 +148,116 @@ public class PatternDataManager : MonoBehaviour
 
         try
         {
+#if UNITY_EDITOR
+            // En el editor, asegurarse de que la carpeta existe
+            string directory = Path.GetDirectoryName(SaveFilePath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+                Debug.Log($"Carpeta creada: {directory}");
+            }
+#endif
+
             File.WriteAllText(SaveFilePath, json);
-            Debug.Log($"Base de datos guardada en: {SaveFilePath}");
-            Debug.Log($"S�mbolos guardados: {database.symbols.Count}");
+
+#if UNITY_EDITOR
+            // Refrescar el AssetDatabase para que Unity detecte el cambio
+            UnityEditor.AssetDatabase.Refresh();
+#endif
+
+            Debug.Log($"✅ Base de datos guardada en: {SaveFilePath}");
+            Debug.Log($"📊 Símbolos guardados: {database.symbols.Count}");
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Error al guardar: {e.Message}");
+            Debug.LogError($"❌ Error al guardar: {e.Message}");
         }
     }
 
     // Cargar base de datos completa
     public Dictionary<string, SymbolData> LoadDatabase()
     {
-        Dictionary<string, SymbolData> symbolDatabase = new Dictionary<string, SymbolData>();
+        Dictionary<string, SymbolData> symbolDatabase = new Dictionary<string,
+       SymbolData>();
+        string json = null;
 
-        if (!File.Exists(SaveFilePath))
+#if UNITY_EDITOR
+        // En el editor, cargar desde la carpeta del proyecto
+        string filePath = SaveFilePath;
+
+        if (!File.Exists(filePath))
         {
-            Debug.Log("No existe archivo de guardado previo. Creando nueva base de datos.");
+            Debug.Log("⚠ No existe archivo de guardado previo. Creando nueva base de datos.");
+       
             return symbolDatabase;
         }
 
         try
         {
-            string json = File.ReadAllText(SaveFilePath);
-            SymbolDatabase database = JsonUtility.FromJson<SymbolDatabase>(json);
-
-            if (database != null && database.symbols != null)
-            {
-                foreach (var serSymbol in database.symbols)
-                {
-                    SymbolData symbolData = serSymbol.ToSymbolData();
-                    symbolDatabase[symbolData.symbolName] = symbolData;
-                }
-
-                Debug.Log($"Base de datos cargada: {symbolDatabase.Count} s�mbolos");
-                foreach (var kvp in symbolDatabase)
-                {
-                    Debug.Log($"  - '{kvp.Key}': {kvp.Value.patterns.Count} patrones");
-                }
-            }
+            json = File.ReadAllText(filePath);
+            Debug.Log($"✅ Cargando desde Editor: {filePath}");
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Error al cargar base de datos: {e.Message}");
+            Debug.LogError($"❌ Error al cargar en Editor: {e.Message}");
+            return symbolDatabase;
+        }
+#else
+        // En build, cargar desde Resources (sin extensión .json)
+        TextAsset jsonFile = Resources.Load<TextAsset>("SymbolData/symbol_patterns");
+       
+        if (jsonFile != null)
+        {
+            json = jsonFile.text;
+            Debug.Log($"✅ Cargando desde Resources en Build");
+        }
+        else
+        {
+            Debug.LogError("❌ No se encontró symbol_patterns en Resources. Asegúrate de que el archivo esté en Assets/Resources/SymbolData/");
+            return symbolDatabase;
+        }
+#endif
+
+        // Parsear el JSON (común para ambos casos)
+        if (!string.IsNullOrEmpty(json))
+        {
+            try
+            {
+                SymbolDatabase database = JsonUtility.FromJson<SymbolDatabase>(json);
+
+                if (database != null && database.symbols != null)
+                {
+                    foreach (var serSymbol in database.symbols)
+                    {
+                        SymbolData symbolData = serSymbol.ToSymbolData();
+                        symbolDatabase[symbolData.symbolName] = symbolData;
+                    }
+
+                    Debug.Log($"✅ Base de datos cargada: {symbolDatabase.Count} símbolos");
+                    foreach (var kvp in symbolDatabase)
+                    {
+                        Debug.Log($"  - '{kvp.Key}': {kvp.Value.patterns.Count} patrones");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("⚠ El archivo JSON está vacío o mal formado");
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"❌ Error al parsear JSON: {e.Message}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("⚠ No se pudo cargar el JSON");
         }
 
         return symbolDatabase;
     }
 
-    // Guardar un �nico s�mbolo (�til para actualizaciones incrementales)
+    // Guardar un único símbolo (útil para actualizaciones incrementales)
     public void SaveSingleSymbol(string symbolName, SymbolData symbolData)
     {
         Dictionary<string, SymbolData> database = LoadDatabase();
@@ -205,7 +265,7 @@ public class PatternDataManager : MonoBehaviour
         SaveDatabase(database);
     }
 
-    // Eliminar un s�mbolo
+    // Eliminar un símbolo
     public void DeleteSymbol(string symbolName)
     {
         Dictionary<string, SymbolData> database = LoadDatabase();
@@ -213,7 +273,7 @@ public class PatternDataManager : MonoBehaviour
         {
             database.Remove(symbolName);
             SaveDatabase(database);
-            Debug.Log($"S�mbolo '{symbolName}' eliminado del guardado");
+            Debug.Log($"Símbolo '{symbolName}' eliminado del guardado");
         }
     }
 
@@ -227,7 +287,7 @@ public class PatternDataManager : MonoBehaviour
         }
     }
 
-    // Obtener informaci�n de la base de datos sin cargarla completamente
+    // Obtener información de la base de datos sin cargarla completamente
     public List<string> GetSavedSymbolNames()
     {
         if (!File.Exists(SaveFilePath))
@@ -245,13 +305,13 @@ public class PatternDataManager : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Error al leer nombres de s�mbolos: {e.Message}");
+            Debug.LogError($"Error al leer nombres de símbolos: {e.Message}");
         }
 
         return new List<string>();
     }
 
-    // Verificar si existe un s�mbolo guardado
+    // Verificar si existe un símbolo guardado
     public bool HasSymbol(string symbolName)
     {
         return GetSavedSymbolNames().Contains(symbolName);
@@ -261,17 +321,17 @@ public class PatternDataManager : MonoBehaviour
     public string ExportToReadableText()
     {
         Dictionary<string, SymbolData> database = LoadDatabase();
-        string output = "=== BASE DE DATOS DE S�MBOLOS ===\n\n";
+        string output = "=== BASE DE DATOS DE SÍMBOLOS ===\n\n";
 
         foreach (var kvp in database)
         {
-            output += $"S�mbolo: {kvp.Key}\n";
+            output += $"Símbolo: {kvp.Key}\n";
             output += $"Patrones: {kvp.Value.patterns.Count}\n";
 
             for (int i = 0; i < kvp.Value.patterns.Count; i++)
             {
                 var pattern = kvp.Value.patterns[i];
-                output += $"  Patr�n {i + 1}: {pattern.pointCount} puntos, distancia: {pattern.totalDistance:F2}\n";
+                output += $"  Patrón {i + 1}: {pattern.pointCount} puntos, distancia: {pattern.totalDistance:F2}\n";
             }
             output += "\n";
         }

@@ -470,7 +470,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d84b7ab61355b84cb0446fb73b4c650, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SymbolTarget
-  targetSymbol: ^
+  targetSymbol: VInv
   destroyOnMatch: 1
   destroyDelay: 0
   pointsGiven: 1
