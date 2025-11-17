@@ -17,15 +17,16 @@ public class HUDManager : MonoBehaviour
     [Header("Pause")]
     [SerializeField] private GameObject pausePanel;
 
-
     private PlayerController playerReference;
     private ScoreManager scoreManager;
+    private PillarSpawner pillarSpawner;
 
     private void Awake()
     {
         Instance = this;
         playerReference = FindAnyObjectByType<PlayerController>();
         scoreManager = FindAnyObjectByType<ScoreManager>();
+        pillarSpawner = FindAnyObjectByType<PillarSpawner>();
     }
 
     public void GameOver()
@@ -61,6 +62,13 @@ public class HUDManager : MonoBehaviour
         ClearObstacles();
         Time.timeScale = 1f;
         scoreManager.ResetScore();
+
+        // Resetear el tutorial
+        if (pillarSpawner != null)
+        {
+            pillarSpawner.ResetTutorial();
+        }
+
         gameOverPanel.SetActive(false);
         playerReference.gameObject.SetActive(true);
         GameManager.Instance.ChangeState(GameManager.GameState.Playing);
@@ -88,5 +96,4 @@ public class HUDManager : MonoBehaviour
             Destroy(obstacle.gameObject);
         }
     }
-
 }

@@ -86,18 +86,7 @@ public class PillarSpawner : MonoBehaviour
         }
 
         // Inicializar tutorial si está activado
-        if (startWithTutorial)
-        {
-            StartTutorial();
-        }
-        else
-        {
-            // Asegurarse de que el mensaje esté oculto si no hay tutorial
-            if (tutorialMessage != null)
-            {
-                tutorialMessage.gameObject.SetActive(false);
-            }
-        }
+        InitializeTutorial();
     }
 
     void Update()
@@ -110,11 +99,11 @@ public class PillarSpawner : MonoBehaviour
                 CheckTutorialEnd();
             }
 
-            SpanwObstaclesIfNeccesary();
+            SpawnObstaclesIfNeccesary();
         }
     }
 
-    private void SpanwObstaclesIfNeccesary()
+    private void SpawnObstaclesIfNeccesary()
     {
         float currentInterval = isInTutorial ? intervalForTutorial : spawnInterval;
 
@@ -237,10 +226,27 @@ public class PillarSpawner : MonoBehaviour
     }
 
     // Métodos del Tutorial
+    private void InitializeTutorial()
+    {
+        if (startWithTutorial)
+        {
+            StartTutorial();
+        }
+        else
+        {
+            // Asegurarse de que el mensaje esté oculto si no hay tutorial
+            if (tutorialMessage != null)
+            {
+                tutorialMessage.gameObject.SetActive(false);
+            }
+        }
+    }
+
     private void StartTutorial()
     {
         isInTutorial = true;
         tutorialIndex = 0;
+        lastSpawnTime = Time.time;
 
         // Obtener puntuación actual del ScoreManager
         ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
@@ -348,5 +354,24 @@ public class PillarSpawner : MonoBehaviour
         }
 
         Debug.Log("Tutorial completado");
+    }
+
+    // Método público para reiniciar el tutorial (llamado desde HUDManager)
+    public void ResetTutorial()
+    {
+        // Resetear variables del tutorial
+        isInTutorial = false;
+        tutorialIndex = 0;
+        tutorialInitialScore = 0;
+        lastSpawnTime = Time.time;
+
+        // Ocultar mensaje si existe
+        if (tutorialMessage != null)
+        {
+            tutorialMessage.gameObject.SetActive(false);
+        }
+
+        // Reinicializar tutorial si está configurado para empezar con él
+        InitializeTutorial();
     }
 }

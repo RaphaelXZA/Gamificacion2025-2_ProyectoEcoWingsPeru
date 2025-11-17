@@ -3,12 +3,24 @@ using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
+    [Header("UI")]
     [SerializeField] private TextMeshProUGUI textScore;
+
+    [Header("Visual")]
     [SerializeField] private SpriteRenderer backgroundScore;
     [SerializeField] private int umbralChangeColor = 3;
-    [SerializeField] private int umbralSpeedIncrease = 3;
     [SerializeField] private Color nightColor;
     [SerializeField] private float colorTransitionSpeed = 2f;
+
+    [Header("Aumento de Intervalo de Spawn")]
+    [SerializeField] private int pointsToReduceInterval = 3;
+    [SerializeField] private float spawnIntervalReduction = 0.2f;
+    [Tooltip("Lo más bajo que puede llegar a reducirse el intervalo de spawn")]
+    [SerializeField] private float minimalInterval = 1f;
+
+    [Header("Aumento de Velocidad")]
+    [SerializeField] private int pointsToIncreaseSpeed = 3;
+    [SerializeField] private float obstacleSpeedBoost = 0.4f;
 
     private Color originalColor;
     private Color targetColor;
@@ -42,12 +54,19 @@ public class ScoreManager : MonoBehaviour
     {
         score += cantidad;
 
-        if (score != 0 && score % umbralSpeedIncrease == 0 && obstacleSpawner != null)
+        // Reducir intervalo de spawn cada X puntos
+        if (score != 0 && score % pointsToReduceInterval == 0 && obstacleSpawner != null)
         {
-            obstacleSpawner.SpawnInterval = Mathf.Max(0.8f, obstacleSpawner.SpawnInterval - 0.2f);
-            obstacleSpawner.ObstacleSpeed += 0.4f;
+            obstacleSpawner.SpawnInterval = Mathf.Max(minimalInterval, obstacleSpawner.SpawnInterval - spawnIntervalReduction);
         }
 
+        // Aumentar velocidad cada X puntos
+        if (score != 0 && score % pointsToIncreaseSpeed == 0 && obstacleSpawner != null)
+        {
+            obstacleSpawner.ObstacleSpeed += obstacleSpeedBoost;
+        }
+
+        // Cambiar color de fondo cada X puntos
         if (score != 0 && score % umbralChangeColor == 0)
         {
             isNight = !isNight;
@@ -64,7 +83,7 @@ public class ScoreManager : MonoBehaviour
     {
         score = 0;
         isNight = false;
-        targetColor = originalColor; // volver a día
+        targetColor = originalColor;
         UpdateUI();
 
         if (obstacleSpawner != null)

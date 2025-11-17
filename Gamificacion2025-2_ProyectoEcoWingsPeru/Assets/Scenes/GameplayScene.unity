@@ -245,7 +245,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 480, y: -97.3}
+  m_AnchoredPosition: {x: 570, y: -97.3}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &64150362
@@ -988,9 +988,13 @@ MonoBehaviour:
   textScore: {fileID: 1579599821}
   backgroundScore: {fileID: 471531260}
   umbralChangeColor: 10
-  umbralSpeedIncrease: 3
   nightColor: {r: 0.53333336, g: 0.5254902, b: 0.90588236, a: 1}
   colorTransitionSpeed: 2
+  pointsToReduceInterval: 3
+  spawnIntervalReduction: 0.2
+  minimalInterval: 1
+  pointsToIncreaseSpeed: 2
+  obstacleSpeedBoost: 0.4
 --- !u!4 &332193915
 Transform:
   m_ObjectHideFlags: 0
@@ -1124,7 +1128,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -116.26001}
+  m_AnchoredPosition: {x: 1140, y: -116.26001}
   m_SizeDelta: {x: 350, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &441138973
@@ -2485,31 +2489,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obstaclePrefabs:
   - prefab: {fileID: 7697077731888315743, guid: 6f9a5a525b3b3334fb2738094f96af13, type: 3}
-    probability: 30
+    probability: 70
     onlyCenterPosition: 0
   - prefab: {fileID: 3037985211243640420, guid: 4bc47d4574fec0b4d9e263dd0231c3c1, type: 3}
-    probability: 10
+    probability: 35
     onlyCenterPosition: 1
   - prefab: {fileID: 5278475763146452189, guid: e873e55427be1c04cb03d9c9c760524d, type: 3}
-    probability: 10
+    probability: 35
     onlyCenterPosition: 1
   - prefab: {fileID: 5278475763146452189, guid: 8f3ec3d9da5b99b4da93befe62aee720, type: 3}
-    probability: 10
+    probability: 35
+    onlyCenterPosition: 1
+  - prefab: {fileID: 5278475763146452189, guid: b410a9701f81b434abaee7b0c78b8017, type: 3}
+    probability: 35
     onlyCenterPosition: 1
   - prefab: {fileID: 7697077731888315743, guid: 0d6885a1c2f960948ae62b6995343fa9, type: 3}
-    probability: 15
+    probability: 60
     onlyCenterPosition: 1
   - prefab: {fileID: 7697077731888315743, guid: e5db840e4db28f244969aa3c94311f91, type: 3}
-    probability: 15
+    probability: 60
     onlyCenterPosition: 1
   - prefab: {fileID: 7697077731888315743, guid: 694656144013ac6429e8bc66479f1ba3, type: 3}
-    probability: 10
+    probability: 60
     onlyCenterPosition: 1
   spawnInterval: 3
   spawnPointHigh: {fileID: 130501326}
   spawnPointCenter: {fileID: 658237568}
   spawnPointLow: {fileID: 419946956}
-  startWithTutorial: 0
+  startWithTutorial: 1
   intervalForTutorial: 5
   tutorialMessage: {fileID: 1799420485}
   obstacleSpeed: 5
@@ -3473,7 +3480,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 320, y: -116.26001}
+  m_AnchoredPosition: {x: 380, y: -116.26001}
   m_SizeDelta: {x: 350, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1441414509
@@ -3973,7 +3980,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1440, y: -97.3}
+  m_AnchoredPosition: {x: 1710, y: -97.3}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1557171692
@@ -4106,7 +4113,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1600, y: -116.26001}
+  m_AnchoredPosition: {x: 1900, y: -116.26001}
   m_SizeDelta: {x: 350, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1574842952
