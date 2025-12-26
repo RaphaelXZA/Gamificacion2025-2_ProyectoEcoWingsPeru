@@ -6,12 +6,12 @@ using System.Linq;
 [System.Serializable]
 public class DrawingPattern
 {
-    public List<Vector2> normalizedPoints; // Puntos normalizados (0-1)
-    public List<Vector2> directions; // Direcciones vectoriales
+    public List<Vector2> normalizedPoints; //Puntos normalizados (0-1)
+    public List<Vector2> directions; //Direcciones vectoriales
     public float totalDistance;
     public int pointCount;
 
-    // Constructor vacío para deserialización
+    //Constructor vacío para deserialización
     public DrawingPattern()
     {
         normalizedPoints = new List<Vector2>();
@@ -27,10 +27,9 @@ public class DrawingPattern
 
         if (rawPoints.Count < 2) return;
 
-        // Normalizar puntos a un espacio 0-1
+        //Normalizar puntos a un espacio 0-1
         NormalizePoints(rawPoints);
 
-        // Calcular direcciones entre puntos consecutivos
         CalculateDirections();
 
         pointCount = normalizedPoints.Count;
@@ -40,7 +39,7 @@ public class DrawingPattern
     {
         if (rawPoints.Count == 0) return;
 
-        // Encontrar bounds
+        //Encontrar bounds
         float minX = rawPoints.Min(p => p.x);
         float maxX = rawPoints.Max(p => p.x);
         float minY = rawPoints.Min(p => p.y);
@@ -49,7 +48,7 @@ public class DrawingPattern
         float width = maxX - minX;
         float height = maxY - minY;
 
-        // Evitar división por cero
+        //Evitar división por cero
         if (width < 0.001f) width = 0.001f;
         if (height < 0.001f) height = 0.001f;
 
@@ -64,7 +63,7 @@ public class DrawingPattern
             normalizedPoints.Add(normalizedPoint);
         }
 
-        // Calcular distancia total
+        //Calcular distancia total
         for (int i = 1; i < normalizedPoints.Count; i++)
         {
             totalDistance += Vector2.Distance(normalizedPoints[i - 1], normalizedPoints[i]);
@@ -89,7 +88,7 @@ public class SymbolData
 {
     public string symbolName;
     public List<DrawingPattern> patterns;
-    public int maxPatterns = 15; // Máximo de patrones por símbolo
+    public int maxPatterns = 15; //Máximo de patrones por símbolo
 
     public SymbolData(string name)
     {
@@ -101,7 +100,7 @@ public class SymbolData
     {
         patterns.Add(pattern);
 
-        // Mantener solo los patrones más recientes
+        //Mantener solo los patrones más recientes
         if (patterns.Count > maxPatterns)
         {
             patterns.RemoveAt(0);
@@ -132,7 +131,7 @@ public class SymbolData
         float directionScore = CompareDirections(pattern1.directions, pattern2.directions);
         float lengthScore = CompareLengths(pattern1.totalDistance, pattern2.totalDistance);
 
-        // Peso combinado
+        //Peso combinado
         return (shapeScore * 0.5f) + (directionScore * 0.3f) + (lengthScore * 0.2f);
     }
 
@@ -140,7 +139,7 @@ public class SymbolData
     {
         if (points1.Count == 0 || points2.Count == 0) return 0f;
 
-        // Resample both patterns to same point count for comparison
+        //Remuestrea ambos patrones al mismo número de puntos para compararlos.
         int targetPoints = Mathf.Min(20, Mathf.Max(points1.Count, points2.Count));
         List<Vector2> resampled1 = ResamplePath(points1, targetPoints);
         List<Vector2> resampled2 = ResamplePath(points2, targetPoints);
@@ -151,9 +150,9 @@ public class SymbolData
             totalDistance += Vector2.Distance(resampled1[i], resampled2[i]);
         }
 
-        // Normalizar score (menor distancia = mayor similitud)
+        //Normalizar score (menor distancia = mayor similitud)
         float avgDistance = totalDistance / targetPoints;
-        return Mathf.Clamp01(1f - (avgDistance * 2f)); // Ajustar multiplicador según necesidad
+        return Mathf.Clamp01(1f - (avgDistance * 2f)); //Ajustar multiplicador según necesidad
     }
 
     private List<Vector2> ResamplePath(List<Vector2> points, int targetCount)
@@ -163,7 +162,7 @@ public class SymbolData
         List<Vector2> resampled = new List<Vector2>();
         float totalLength = 0f;
 
-        // Calcular longitud total
+        //Calcular longitud total
         for (int i = 1; i < points.Count; i++)
         {
             totalLength += Vector2.Distance(points[i - 1], points[i]);
@@ -193,7 +192,7 @@ public class SymbolData
             }
             else
             {
-                // Interpolar entre puntos
+                //Interpolar entre puntos
                 float excess = currentLength - targetLength;
                 float segLen = Vector2.Distance(points[currentIndex - 1], points[currentIndex]);
                 float t = segLen > 0 ? (segLen - excess) / segLen : 0;
@@ -216,7 +215,7 @@ public class SymbolData
         for (int i = 0; i < minCount; i++)
         {
             float dot = Vector2.Dot(dirs1[i], dirs2[i]);
-            totalSimilarity += (dot + 1f) / 2f; // Convertir de [-1,1] a [0,1]
+            totalSimilarity += (dot + 1f) / 2f; //Convertir de [-1,1] a [0,1]
         }
 
         return totalSimilarity / minCount;
@@ -234,14 +233,15 @@ public class SymbolData
 public class SymbolPatternSystem : MonoBehaviour
 {
     [Header("Pattern Settings")]
-    [SerializeField] private float matchThreshold = 0.7f; // Umbral para considerar una coincidencia
-    [SerializeField] private bool isLearningMode = false; // Modo aprendizaje vs gameplay
-    [SerializeField] private string currentLearningSymbol = ""; // Símbolo actual en modo aprendizaje
+    [Tooltip("UMBRAL PARA CONSIDERAR COINCIDENCIA")]
+    [SerializeField] private float matchThreshold = 0.7f;
+    [SerializeField] private bool isLearningMode = false;
+    [SerializeField] private string currentLearningSymbol = ""; 
 
     private Dictionary<string, SymbolData> symbolDatabase;
     private DrawingSystem drawingSystem;
 
-    // Events para notificar matches
+    //Eventos para notificar coincidencias
     public event Action<string, float> OnSymbolMatched;
     public event Action<string> OnPatternLearned;
 
@@ -255,12 +255,11 @@ public class SymbolPatternSystem : MonoBehaviour
             Debug.LogError("DrawingSystem no encontrado!");
         }
 
-        LoadSymbolDatabase(); // Cargar patrones guardados
+        LoadSymbolDatabase(); 
     }
 
     void Update()
     {
-        // Verificar si se completó un dibujo
         if (drawingSystem != null && drawingSystem.HasNewPattern())
         {
             ProcessLastDrawing();
@@ -338,7 +337,7 @@ public class SymbolPatternSystem : MonoBehaviour
         }
     }
 
-    // Métodos públicos para controlar el sistema
+    //Métodos públicos
     public void StartLearningMode(string symbolName)
     {
         isLearningMode = true;
@@ -385,7 +384,7 @@ public class SymbolPatternSystem : MonoBehaviour
         }
     }
 
-    // Método de debug para verificar el estado del sistema
+    //Método de debug para verificar el estado del sistema
     public void DebugSystemState()
     {
         Debug.Log($"=== ESTADO DEL SISTEMA ===");

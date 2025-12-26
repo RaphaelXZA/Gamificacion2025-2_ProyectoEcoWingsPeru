@@ -16,8 +16,6 @@ public class DrawingSystem : MonoBehaviour
     private List<Vector3> lastCompletedPoints;
     private bool isDrawing = false;
     private bool hasNewPattern = false;
-
-    // Nuevo Input System
     private Touchscreen touchscreen;
     private Mouse mouse;
 
@@ -25,12 +23,12 @@ public class DrawingSystem : MonoBehaviour
     {
         mainCamera = Camera.main;
         if (mainCamera == null)
+        {
             mainCamera = Object.FindFirstObjectByType<Camera>();
-
+        }
         currentPoints = new List<Vector3>();
         lastCompletedPoints = new List<Vector3>();
 
-        // Obtener referencias a dispositivos de entrada
         touchscreen = Touchscreen.current;
         mouse = Mouse.current;
     }
@@ -45,13 +43,11 @@ public class DrawingSystem : MonoBehaviour
         bool isTouching = false;
         Vector2 inputPosition = Vector2.zero;
 
-        // Prioridad 1: Touch (dispositivos móviles)
         if (touchscreen != null && touchscreen.primaryTouch.press.isPressed)
         {
             isTouching = true;
             inputPosition = touchscreen.primaryTouch.position.ReadValue();
         }
-        // Prioridad 2: Mouse (editor/PC)
         else if (mouse != null && mouse.leftButton.isPressed)
         {
             isTouching = true;
@@ -139,7 +135,6 @@ public class DrawingSystem : MonoBehaviour
         {
             lastCompletedPoints = new List<Vector3>(currentPoints);
             hasNewPattern = true;
-            Debug.Log($"Dibujo completado con {lastCompletedPoints.Count} puntos");
         }
 
         if (currentLine != null)

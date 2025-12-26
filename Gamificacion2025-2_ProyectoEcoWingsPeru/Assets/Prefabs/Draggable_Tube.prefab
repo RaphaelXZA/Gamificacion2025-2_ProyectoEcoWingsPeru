@@ -205,9 +205,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b3f78145fea5144a8d5744ebea2ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  limiteSuperior: 12
-  limiteInferior: -10
-  sensibilidad: 1
+  upperBoundary: 12
+  lowerBoundary: -10
+  sensitivity: 1
   pointsGiven: 1
 --- !u!54 &45520008437178413
 Rigidbody:

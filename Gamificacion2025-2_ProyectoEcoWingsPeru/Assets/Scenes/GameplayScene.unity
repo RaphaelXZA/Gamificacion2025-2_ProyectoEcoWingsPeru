@@ -2489,34 +2489,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obstaclePrefabs:
   - prefab: {fileID: 7697077731888315743, guid: 6f9a5a525b3b3334fb2738094f96af13, type: 3}
-    probability: 70
+    probability: 60
     onlyCenterPosition: 0
   - prefab: {fileID: 3037985211243640420, guid: 4bc47d4574fec0b4d9e263dd0231c3c1, type: 3}
-    probability: 35
+    probability: 30
     onlyCenterPosition: 1
   - prefab: {fileID: 5278475763146452189, guid: e873e55427be1c04cb03d9c9c760524d, type: 3}
-    probability: 35
+    probability: 30
     onlyCenterPosition: 1
   - prefab: {fileID: 5278475763146452189, guid: 8f3ec3d9da5b99b4da93befe62aee720, type: 3}
-    probability: 35
+    probability: 30
     onlyCenterPosition: 1
   - prefab: {fileID: 5278475763146452189, guid: b410a9701f81b434abaee7b0c78b8017, type: 3}
-    probability: 35
+    probability: 30
     onlyCenterPosition: 1
   - prefab: {fileID: 7697077731888315743, guid: 0d6885a1c2f960948ae62b6995343fa9, type: 3}
-    probability: 60
+    probability: 50
     onlyCenterPosition: 1
   - prefab: {fileID: 7697077731888315743, guid: e5db840e4db28f244969aa3c94311f91, type: 3}
-    probability: 60
+    probability: 50
     onlyCenterPosition: 1
   - prefab: {fileID: 7697077731888315743, guid: 694656144013ac6429e8bc66479f1ba3, type: 3}
-    probability: 60
+    probability: 50
     onlyCenterPosition: 1
   spawnInterval: 3
   spawnPointHigh: {fileID: 130501326}
   spawnPointCenter: {fileID: 658237568}
   spawnPointLow: {fileID: 419946956}
-  startWithTutorial: 1
+  startWithTutorial: 0
   intervalForTutorial: 5
   tutorialMessage: {fileID: 1799420485}
   obstacleSpeed: 5
@@ -2826,6 +2826,59 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &1215693884
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1215693886}
+  - component: {fileID: 1215693885}
+  m_Layer: 0
+  m_Name: DespawnZone
+  m_TagString: DespawnZone
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &1215693885
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1215693884}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1215693886
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1215693884}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 19.75, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 30, z: 10}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1234100353
 GameObject:
   m_ObjectHideFlags: 0
@@ -6362,3 +6415,4 @@ SceneRoots:
   - {fileID: 2072253218}
   - {fileID: 661923325}
   - {fileID: 209008947}
+  - {fileID: 1215693886}

@@ -63,7 +63,6 @@ public class HUDManager : MonoBehaviour
         Time.timeScale = 1f;
         scoreManager.ResetScore();
 
-        // Resetear el tutorial
         if (pillarSpawner != null)
         {
             pillarSpawner.ResetTutorial();

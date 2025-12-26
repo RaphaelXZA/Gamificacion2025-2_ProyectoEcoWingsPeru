@@ -14,28 +14,28 @@ public class SpikeSpawner : MonoBehaviour
     public BoxCollider2D rightWall;
 
     [Header("Prefabs")]
-    public GameObject spikePrefab;   // Sprite apuntando hacia ARRIBA
+    public GameObject spikePrefab;   //Sprite apuntando hacia ARRIBA
     public GameObject candyPrefab;
 
     [Header("Espaciado")]
-    public float horizontalSpacing = 0.5f;   // distancia entre espinas de arriba/abajo
-    public float verticalSpacing = 0.5f;     // distancia entre espinas de izquierda/derecha
+    public float horizontalSpacing = 0.5f;   //distancia entre espinas de arriba/abajo
+    public float verticalSpacing = 0.5f;     //distancia entre espinas de izquierda/derecha
 
     [Header("Caramelos")]
     [Range(0f, 1f)]
-    public float candySpawnChance = 0.3f;    // probabilidad de que salga un caramelo en cada rebote
+    public float candySpawnChance = 0.3f;    //probabilidad de que salga un caramelo en cada rebote
 
-    // Arrays de spikes
+    //Arrays de spikes
     private GameObject[] topSpikes;
     private GameObject[] bottomSpikes;
     private GameObject[] leftSpikes;
     private GameObject[] rightSpikes;
 
-    // Arrays de caramelos para lados
+    //Arrays de caramelos para lados
     private GameObject[] leftCandies;
     private GameObject[] rightCandies;
 
-    // Info de slots verticales (para lados)
+    //Info de slots verticales (para lados)
     private int leftSlotCount;
     private int rightSlotCount;
     private float leftMinY;
@@ -51,7 +51,7 @@ public class SpikeSpawner : MonoBehaviour
         Instance = this;
     }
 
-    // Esperamos un frame para que ScreenBounds acomode los colliders
+    //Esperamos un frame para que ScreenBounds acomode los colliders
     private IEnumerator Start()
     {
         yield return null;
@@ -60,11 +60,11 @@ public class SpikeSpawner : MonoBehaviour
 
     private void InitSpikes()
     {
-        // 1) Espinas superiores e inferiores (siempre llenas)
+        //1) Espinas superiores e inferiores (siempre llenas)
         InitHorizontalWall(topWall, true, ref topSpikes);
         InitHorizontalWall(bottomWall, false, ref bottomSpikes);
 
-        // 2) Slots en izquierda/derecha (espinas + caramelos)
+        //2) Slots en izquierda/derecha (espinas + caramelos)
         InitVerticalWall(leftWall, ref leftSpikes, ref leftCandies, out leftSlotCount, out leftMinY);
         InitVerticalWall(rightWall, ref rightSpikes, ref rightCandies, out rightSlotCount, out rightMinY);
     }
@@ -81,16 +81,16 @@ public class SpikeSpawner : MonoBehaviour
         spikes = new GameObject[count];
 
         float startX = b.min.x;
-        float y = isTop ? b.min.y : b.max.y;   // cara interior del collider
+        float y = isTop ? b.min.y : b.max.y;   //cara interior del collider
 
         for (int i = 0; i < count; i++)
         {
             float x = startX + horizontalSpacing * 0.5f + i * horizontalSpacing;
             Vector3 pos = new Vector3(x, y, 0f);
 
-            // Spike apunta hacia arriba por defecto:
-            // - Top: mirar hacia ABAJO -> 180°
-            // - Bottom: hacia ARRIBA -> 0°
+            //Spike apunta hacia arriba por defecto:
+            //- Top: mirar hacia ABAJO -> 180°
+            //- Bottom: hacia ARRIBA -> 0°
             float rotZ = isTop ? 180f : 0f;
 
             spikes[i] = Instantiate(
@@ -126,7 +126,7 @@ public class SpikeSpawner : MonoBehaviour
         minYOut = minY;
 
         bool isLeft = wall == leftWall;
-        float x = isLeft ? b.max.x : b.min.x;  // cara interior
+        float x = isLeft ? b.max.x : b.min.x;  //cara interior
 
         for (int i = 0; i < slotCount; i++)
         {
@@ -134,8 +134,8 @@ public class SpikeSpawner : MonoBehaviour
             Vector3 pos = new Vector3(x, y, 0f);
 
             // Spike apunta hacia arriba:
-            // - Izquierda: mirar DERECHA -> -90°
-            // - Derecha: mirar IZQUIERDA -> 90°
+            //- Izquierda: mirar DERECHA -> -90°
+            //- Derecha: mirar IZQUIERDA -> 90°
             float rotZ = isLeft ? -90f : 90f;
 
             spikes[i] = Instantiate(
@@ -169,7 +169,7 @@ public class SpikeSpawner : MonoBehaviour
     {
         if (direction > 0f)
         {
-            // Ahora va hacia la DERECHA -> acaba de chocar con la IZQUIERDA
+            //Ahora va hacia la DERECHA -> acaba de chocar con la IZQUIERDA
             ClearWall(leftSpikes, leftCandies);  // quitar spikes de la pared tocada
             GenerateVerticalPattern(
                 rightSpikes, rightCandies,
@@ -179,7 +179,7 @@ public class SpikeSpawner : MonoBehaviour
         }
         else
         {
-            // Ahora va hacia la IZQUIERDA -> acaba de chocar con la DERECHA
+            //Ahora va hacia la IZQUIERDA -> acaba de chocar con la DERECHA
             ClearWall(rightSpikes, rightCandies);
             GenerateVerticalPattern(
                 leftSpikes, leftCandies,
@@ -215,29 +215,29 @@ public class SpikeSpawner : MonoBehaviour
         if (spikes == null || slotCount <= 0)
             return;
 
-        // 1) Grupos de spikes (2–3) + gaps (1–2)
+        //1) Grupos de spikes (2–3) + gaps (1–2)
         bool[] hasSpike = new bool[slotCount];
 
         int i = 0;
         while (i < slotCount)
         {
-            // grupo de spikes
+            //grupo de spikes
             int spikesLen = Random.Range(2, 4); // 2 o 3
             for (int k = 0; k < spikesLen && i < slotCount; k++, i++)
             {
                 hasSpike[i] = true;
             }
 
-            // gap
+            //gap
             int gapLen = Random.Range(1, 3); // 1 o 2 espacios
             i += gapLen; // quedan en false -> huecos
         }
 
-        // 2) Garantizar un hueco cerca del pájaro
+        //2) Garantizar un hueco cerca del pájaro
         int safeIndex = GetNearestSlotIndex(birdY, minY, verticalSpacing, slotCount);
         hasSpike[safeIndex] = false;
 
-        // 3) Aplicar al mundo (activar / desactivar)
+        //3) Aplicar al mundo (activar / desactivar)
         List<int> gapIndices = new List<int>();
 
         for (int idx = 0; idx < slotCount; idx++)
@@ -254,7 +254,7 @@ public class SpikeSpawner : MonoBehaviour
                 gapIndices.Add(idx);
         }
 
-        // 4) Caramelo en uno de los huecos (a veces)
+        //4) Caramelo en uno de los huecos (a veces)
         if (candies != null && gapIndices.Count > 0 && Random.value < candySpawnChance)
         {
             int chosenGap = gapIndices[Random.Range(0, gapIndices.Count)];

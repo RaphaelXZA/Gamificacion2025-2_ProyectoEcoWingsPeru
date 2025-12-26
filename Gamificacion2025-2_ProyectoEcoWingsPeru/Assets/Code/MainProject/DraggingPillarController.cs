@@ -3,20 +3,20 @@ using UnityEngine.InputSystem;
 
 public class DraggingPillarController : MonoBehaviour
 {
-    [Header("Configuración del Pilar")]
-    [SerializeField] private float limiteSuperior = 5f;
-    [SerializeField] private float limiteInferior = -5f;
-    [SerializeField] private float sensibilidad = 1f;
+    [Header("Pillar Settings")]
+    [SerializeField] private float upperBoundary = 12f;
+    [SerializeField] private float lowerBoundary = -10f;
+    [SerializeField] private float sensitivity = 1f;
     [SerializeField] private int pointsGiven = 1;
 
-    private Camera camaraPrincipal;
-    private bool estaSiendoArrastrado = false;
+    private Camera mainCamera;
+    private bool isBeingDragged = false;
     private float offsetY;
-    private bool hasGavePoints = false;
+    private bool hasGivenPoints = false;
 
     void Start()
     {
-        camaraPrincipal = Camera.main;
+        mainCamera = Camera.main;
     }
 
     void Update()
@@ -39,14 +39,14 @@ public class DraggingPillarController : MonoBehaviour
     private void GivePoints()
     {
         // Dar puntos (si aún no se han dado)
-        if (!hasGavePoints)
+        if (!hasGivenPoints)
         {
             ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
             if (scoreManager != null)
             {
                 scoreManager.AddScore(pointsGiven);
             }
-            hasGavePoints = true;
+            hasGivenPoints = true;
         }
     }
 
@@ -63,7 +63,7 @@ public class DraggingPillarController : MonoBehaviour
                 UnityEngine.InputSystem.TouchPhase phase = GetTouchPhase();
                 ManageTouch(touchPosition, phase);
             }
-            else if (estaSiendoArrastrado)
+            else if (isBeingDragged)
             {
                 // Si se soltó el toque pero este pilar estaba siendo arrastrado, terminar arrastre
                 EndDragging();
@@ -78,11 +78,11 @@ public class DraggingPillarController : MonoBehaviour
             {
                 ManageTouch(mousePosition, UnityEngine.InputSystem.TouchPhase.Began);
             }
-            else if (Mouse.current.leftButton.isPressed && estaSiendoArrastrado)
+            else if (Mouse.current.leftButton.isPressed && isBeingDragged)
             {
                 ManageTouch(mousePosition, UnityEngine.InputSystem.TouchPhase.Moved);
             }
-            else if (Mouse.current.leftButton.wasReleasedThisFrame && estaSiendoArrastrado)
+            else if (Mouse.current.leftButton.wasReleasedThisFrame && isBeingDragged)
             {
                 ManageTouch(mousePosition, UnityEngine.InputSystem.TouchPhase.Ended);
             }
@@ -109,7 +109,7 @@ public class DraggingPillarController : MonoBehaviour
         {
             case UnityEngine.InputSystem.TouchPhase.Began:
                 // Solo iniciar arrastre si no hay ningún pilar siendo arrastrado
-                if (!estaSiendoArrastrado)
+                if (!isBeingDragged)
                 {
                     StartDragging(posicionPantalla);
                 }
@@ -117,7 +117,7 @@ public class DraggingPillarController : MonoBehaviour
 
             case UnityEngine.InputSystem.TouchPhase.Moved:
                 // Solo continuar si ESTE pilar está siendo arrastrado
-                if (estaSiendoArrastrado)
+                if (isBeingDragged)
                 {
                     ContinueDragging(posicionPantalla);
                 }
@@ -126,7 +126,7 @@ public class DraggingPillarController : MonoBehaviour
             case UnityEngine.InputSystem.TouchPhase.Ended:
             case UnityEngine.InputSystem.TouchPhase.Canceled:
                 // Solo terminar si ESTE pilar estaba siendo arrastrado
-                if (estaSiendoArrastrado)
+                if (isBeingDragged)
                 {
                     EndDragging();
                 }
@@ -137,19 +137,19 @@ public class DraggingPillarController : MonoBehaviour
     private void StartDragging(Vector2 posicionPantalla)
     {
         // Convertir posición de pantalla a mundo
-        Ray rayo = camaraPrincipal.ScreenPointToRay(posicionPantalla);
+        Ray rayo = mainCamera.ScreenPointToRay(posicionPantalla);
         RaycastHit hit;
 
         // Verificar si el rayo golpea este pilar (ignorando triggers)
         if (Physics.Raycast(rayo, out hit, Mathf.Infinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)
             && hit.transform == transform)
         {
-            estaSiendoArrastrado = true;
+            isBeingDragged = true;
 
             // Calcular offset para un arrastre suave
-            Vector3 puntoMundo = camaraPrincipal.ScreenToWorldPoint(
+            Vector3 puntoMundo = mainCamera.ScreenToWorldPoint(
                 new Vector3(posicionPantalla.x, posicionPantalla.y,
-                camaraPrincipal.WorldToScreenPoint(transform.position).z));
+                mainCamera.WorldToScreenPoint(transform.position).z));
 
             offsetY = transform.position.y - puntoMundo.y;
         }
@@ -158,15 +158,15 @@ public class DraggingPillarController : MonoBehaviour
     private void ContinueDragging(Vector2 posicionPantalla)
     {
         // Convertir posición de pantalla a mundo
-        Vector3 puntoMundo = camaraPrincipal.ScreenToWorldPoint(
+        Vector3 puntoMundo = mainCamera.ScreenToWorldPoint(
             new Vector3(posicionPantalla.x, posicionPantalla.y,
-            camaraPrincipal.WorldToScreenPoint(transform.position).z));
+            mainCamera.WorldToScreenPoint(transform.position).z));
 
         // Calcular nueva posición Y con offset y sensibilidad
-        float nuevaY = (puntoMundo.y + offsetY) * sensibilidad;
+        float nuevaY = (puntoMundo.y + offsetY) * sensitivity;
 
         // Aplicar límites
-        nuevaY = Mathf.Clamp(nuevaY, limiteInferior, limiteSuperior);
+        nuevaY = Mathf.Clamp(nuevaY, lowerBoundary, upperBoundary);
 
         // Actualizar posición manteniendo X y Z
         transform.position = new Vector3(transform.position.x, nuevaY, transform.position.z);
@@ -174,7 +174,7 @@ public class DraggingPillarController : MonoBehaviour
 
     private void EndDragging()
     {
-        estaSiendoArrastrado = false;
+        isBeingDragged = false;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -183,18 +183,5 @@ public class DraggingPillarController : MonoBehaviour
         {
             GivePoints();
         }
-    }
-
-    // Método para configurar límites desde otros scripts
-    public void SetUpLimits(float superior, float inferior)
-    {
-        limiteSuperior = superior;
-        limiteInferior = inferior;
-    }
-
-    // Método para verificar si está siendo arrastrado
-    public bool IsDragging()
-    {
-        return estaSiendoArrastrado;
     }
 }

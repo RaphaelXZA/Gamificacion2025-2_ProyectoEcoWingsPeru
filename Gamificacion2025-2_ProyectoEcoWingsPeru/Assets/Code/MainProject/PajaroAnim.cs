@@ -3,13 +3,11 @@ using UnityEngine;
 
 public class PajaroAnim : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         StartCoroutine(RotarPajaro());
     }
 
-    // Que no sea tan constante, sino mas random la rotacion en el eje x
 
     private IEnumerator RotarPajaro()
     {

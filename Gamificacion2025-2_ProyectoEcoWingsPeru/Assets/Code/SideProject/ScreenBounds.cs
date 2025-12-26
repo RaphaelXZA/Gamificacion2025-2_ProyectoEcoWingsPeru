@@ -21,19 +21,19 @@ public class ScreenBounds : MonoBehaviour
         float width = height * cam.aspect;
         Vector3 camPos = cam.transform.position;
 
-        // TOP
+        //TOP
         top.position = new Vector3(camPos.x, camPos.y + height / 2.1f + thickness / 2f, 0f);
         top.localScale = new Vector3(width, thickness, 1f);
 
-        // BOTTOM
+        //BOTTOM
         bottom.position = new Vector3(camPos.x, camPos.y - height / 2.1f - thickness / 2f, 0f);
         bottom.localScale = new Vector3(width, thickness, 1f);
 
-        // LEFT
+        //LEFT
         left.position = new Vector3(camPos.x - width / 2f - thickness / 3f, camPos.y, 0f);
         left.localScale = new Vector3(thickness, height, 1f);
 
-        // RIGHT
+        //RIGHT
         right.position = new Vector3(camPos.x + width / 2f + thickness / 3f, camPos.y, 0f);
         right.localScale = new Vector3(thickness, height, 1f);
     }

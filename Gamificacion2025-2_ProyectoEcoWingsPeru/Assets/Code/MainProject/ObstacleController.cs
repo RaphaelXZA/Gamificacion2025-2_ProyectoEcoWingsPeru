@@ -19,7 +19,7 @@ public class ObstacleController : MonoBehaviour
         if(GameManager.Instance.CurrentState == GameManager.GameState.Playing)
         {
             MovePillar();
-            DestroyIfOffScreen();
+            //DestroyIfOffScreen();
         }
     }
 
@@ -28,18 +28,24 @@ public class ObstacleController : MonoBehaviour
         transform.Translate(Vector3.left * movementSpeed * Time.deltaTime);
     }
 
-    private void DestroyIfOffScreen()
-    {
-        // Destruir el pilar si se sale por el lado izquierdo de la pantalla
-        if (transform.position.x < -20f)
-        {
-            Destroy(gameObject);
-        }
-    }
+    //private void DestroyIfOffScreen()
+    //{
+    //    if (transform.position.x < -20f)
+    //    {
+    //        Destroy(gameObject);
+    //    }
+    //}
 
-    // Método para configurar velocidad desde otros scripts
     public void SetUpSpeed(float newSpeed)
     {
         movementSpeed = newSpeed;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("DespawnZone"))
+        {
+            Destroy(this.gameObject);
+        }
     }
 }

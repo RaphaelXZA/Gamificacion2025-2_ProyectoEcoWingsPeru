@@ -12,7 +12,6 @@ public class PatternLearningUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI instructionsText;
     [SerializeField] private Button clearSymbolButton;
     [SerializeField] private TMP_Dropdown symbolDropdown;
-    // debugButton eliminado - solo usaremos tecla D
 
     private SymbolPatternSystem patternSystem;
     private bool isInLearningMode = false;
@@ -27,10 +26,8 @@ public class PatternLearningUI : MonoBehaviour
             return;
         }
 
-        // Configurar eventos
         SetupUI();
 
-        // Suscribirse a eventos del sistema de patrones
         patternSystem.OnSymbolMatched += OnSymbolMatched;
         patternSystem.OnPatternLearned += OnPatternLearned;
 
@@ -51,12 +48,11 @@ public class PatternLearningUI : MonoBehaviour
         if (symbolDropdown != null)
             symbolDropdown.onValueChanged.AddListener(OnSymbolSelected);
 
-        // debugButton eliminado - solo usamos tecla D
     }
 
     void Update()
     {
-        // Debug con tecla D
+        //Debug con tecla "D"
         if (Input.GetKeyDown(KeyCode.D))
         {
             DebugSystem();
@@ -153,7 +149,7 @@ public class PatternLearningUI : MonoBehaviour
         if (symbolDropdown == null || symbolDropdown.options.Count == 0) return;
 
         string selectedOption = symbolDropdown.options[symbolDropdown.value].text;
-        string symbolName = selectedOption.Split('(')[0].Trim(); // Extraer solo el nombre
+        string symbolName = selectedOption.Split('(')[0].Trim(); 
 
         patternSystem.ClearSymbol(symbolName);
         UpdateUI();
@@ -161,7 +157,7 @@ public class PatternLearningUI : MonoBehaviour
 
     void OnSymbolSelected(int index)
     {
-        // Opcional: hacer algo cuando se selecciona un símbolo del dropdown
+        // hacer algo cuando se selecciona un símbolo del dropdown
     }
 
     void DebugSystem()
@@ -172,14 +168,14 @@ public class PatternLearningUI : MonoBehaviour
         }
     }
 
-    // Event handlers del sistema de patrones
+    //Event handlers del sistema de patrones
     void OnSymbolMatched(string symbolName, float accuracy)
     {
         if (statusText != null)
         {
             statusText.text = $"¡DETECTADO: {symbolName}! ({accuracy:P1})";
 
-            // Volver al estado normal después de unos segundos
+            //vuelve al estado normal después de unos segundos
             Invoke(nameof(ResetStatusText), 2f);
         }
     }
@@ -195,7 +191,7 @@ public class PatternLearningUI : MonoBehaviour
 
         UpdateSymbolDropdown();
 
-        // Volver al estado normal después de un momento
+        //vuelve al estado normal después de un momento
         Invoke(nameof(UpdateUI), 1.5f);
     }
 

@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.IO;
 using System.Linq;
-// Clases serializables para JSON
+//Clases serializables para JSON
 [System.Serializable]
 public class SerializablePattern
 {
@@ -93,9 +93,8 @@ public class PatternDataManager : MonoBehaviour
     }
 
     [Header("Development Settings")]
-    [SerializeField] private bool useProjectFolder = true; // Cambiar a false para
-     [SerializeField] private string projectFolderPath = "Assets/Resources/SymbolData";
-    // Carpeta en el proyecto
+    [SerializeField] private bool useProjectFolder = true;
+    [SerializeField] private string projectFolderPath = "Assets/Resources/SymbolData";
 
     private string SaveFilePath
     {
@@ -103,7 +102,6 @@ public class PatternDataManager : MonoBehaviour
         {
             if (useProjectFolder)
             {
-                // Guarda en la carpeta del proyecto (versionable en Git)
 #if UNITY_EDITOR
                 return Path.Combine(Application.dataPath,
 "Resources/SymbolData/symbol_patterns.json");
@@ -115,7 +113,6 @@ public class PatternDataManager : MonoBehaviour
             }
             else
             {
-                // Guarda en persistentDataPath (para testing individual)
                 return Path.Combine(Application.persistentDataPath,
 "symbol_patterns.json");
             }
@@ -134,7 +131,6 @@ public class PatternDataManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    // Guardar base de datos completa
     public void SaveDatabase(Dictionary<string, SymbolData> symbolDatabase)
     {
         SymbolDatabase database = new SymbolDatabase();
@@ -149,7 +145,6 @@ public class PatternDataManager : MonoBehaviour
         try
         {
 #if UNITY_EDITOR
-            // En el editor, asegurarse de que la carpeta existe
             string directory = Path.GetDirectoryName(SaveFilePath);
             if (!Directory.Exists(directory))
             {
@@ -161,20 +156,18 @@ public class PatternDataManager : MonoBehaviour
             File.WriteAllText(SaveFilePath, json);
 
 #if UNITY_EDITOR
-            // Refrescar el AssetDatabase para que Unity detecte el cambio
             UnityEditor.AssetDatabase.Refresh();
 #endif
 
-            Debug.Log($"✅ Base de datos guardada en: {SaveFilePath}");
-            Debug.Log($"📊 Símbolos guardados: {database.symbols.Count}");
+            Debug.Log($"Base de datos guardada en: {SaveFilePath}");
+            Debug.Log($"Símbolos guardados: {database.symbols.Count}");
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"❌ Error al guardar: {e.Message}");
+            Debug.LogError($"Error al guardar: {e.Message}");
         }
     }
 
-    // Cargar base de datos completa
     public Dictionary<string, SymbolData> LoadDatabase()
     {
         Dictionary<string, SymbolData> symbolDatabase = new Dictionary<string,
@@ -182,12 +175,11 @@ public class PatternDataManager : MonoBehaviour
         string json = null;
 
 #if UNITY_EDITOR
-        // En el editor, cargar desde la carpeta del proyecto
         string filePath = SaveFilePath;
 
         if (!File.Exists(filePath))
         {
-            Debug.Log("⚠ No existe archivo de guardado previo. Creando nueva base de datos.");
+            Debug.Log("No existe archivo de guardado previo. Creando nueva base de datos.");
        
             return symbolDatabase;
         }
@@ -195,30 +187,28 @@ public class PatternDataManager : MonoBehaviour
         try
         {
             json = File.ReadAllText(filePath);
-            Debug.Log($"✅ Cargando desde Editor: {filePath}");
+            Debug.Log($"Cargando desde Editor: {filePath}");
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"❌ Error al cargar en Editor: {e.Message}");
+            Debug.LogError($"Error al cargar en Editor: {e.Message}");
             return symbolDatabase;
         }
 #else
-        // En build, cargar desde Resources (sin extensión .json)
         TextAsset jsonFile = Resources.Load<TextAsset>("SymbolData/symbol_patterns");
        
         if (jsonFile != null)
         {
             json = jsonFile.text;
-            Debug.Log($"✅ Cargando desde Resources en Build");
+            Debug.Log($"Cargando desde Resources en Build");
         }
         else
         {
-            Debug.LogError("❌ No se encontró symbol_patterns en Resources. Asegúrate de que el archivo esté en Assets/Resources/SymbolData/");
+            Debug.LogError("No se encontró symbol_patterns en Resources. Asegúrate de que el archivo esté en Assets/Resources/SymbolData/");
             return symbolDatabase;
         }
 #endif
 
-        // Parsear el JSON (común para ambos casos)
         if (!string.IsNullOrEmpty(json))
         {
             try
@@ -233,7 +223,7 @@ public class PatternDataManager : MonoBehaviour
                         symbolDatabase[symbolData.symbolName] = symbolData;
                     }
 
-                    Debug.Log($"✅ Base de datos cargada: {symbolDatabase.Count} símbolos");
+                    Debug.Log($"Base de datos cargada: {symbolDatabase.Count} símbolos");
                     foreach (var kvp in symbolDatabase)
                     {
                         Debug.Log($"  - '{kvp.Key}': {kvp.Value.patterns.Count} patrones");
@@ -241,23 +231,22 @@ public class PatternDataManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning("⚠ El archivo JSON está vacío o mal formado");
+                    Debug.LogWarning("El archivo JSON está vacío o mal formado");
                 }
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"❌ Error al parsear JSON: {e.Message}");
+                Debug.LogError($"Error al parsear JSON: {e.Message}");
             }
         }
         else
         {
-            Debug.LogWarning("⚠ No se pudo cargar el JSON");
+            Debug.LogWarning("No se pudo cargar el JSON");
         }
 
         return symbolDatabase;
     }
 
-    // Guardar un único símbolo (útil para actualizaciones incrementales)
     public void SaveSingleSymbol(string symbolName, SymbolData symbolData)
     {
         Dictionary<string, SymbolData> database = LoadDatabase();
@@ -265,7 +254,6 @@ public class PatternDataManager : MonoBehaviour
         SaveDatabase(database);
     }
 
-    // Eliminar un símbolo
     public void DeleteSymbol(string symbolName)
     {
         Dictionary<string, SymbolData> database = LoadDatabase();
@@ -277,7 +265,6 @@ public class PatternDataManager : MonoBehaviour
         }
     }
 
-    // Borrar toda la base de datos
     public void ClearAllData()
     {
         if (File.Exists(SaveFilePath))
@@ -287,7 +274,6 @@ public class PatternDataManager : MonoBehaviour
         }
     }
 
-    // Obtener información de la base de datos sin cargarla completamente
     public List<string> GetSavedSymbolNames()
     {
         if (!File.Exists(SaveFilePath))
@@ -311,13 +297,11 @@ public class PatternDataManager : MonoBehaviour
         return new List<string>();
     }
 
-    // Verificar si existe un símbolo guardado
     public bool HasSymbol(string symbolName)
     {
         return GetSavedSymbolNames().Contains(symbolName);
     }
 
-    // Exportar base de datos a texto legible (para debug)
     public string ExportToReadableText()
     {
         Dictionary<string, SymbolData> database = LoadDatabase();
